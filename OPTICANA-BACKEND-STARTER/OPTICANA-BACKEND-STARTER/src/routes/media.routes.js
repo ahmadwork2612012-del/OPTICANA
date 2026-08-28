@@ -1,0 +1,2 @@
+import {Router} from "express"; import {requireAuth,requireRole} from "../middleware/auth.middleware.js"; import * as c from "../controllers/media.controller.js";
+const r=Router(); r.use(requireAuth,requireRole("ADMIN","SUPER_ADMIN","STAFF")); r.get("/",c.list); r.post("/",requireRole("ADMIN","SUPER_ADMIN"),c.create); r.patch("/:id",requireRole("ADMIN","SUPER_ADMIN"),c.update); r.patch("/:id/primary",requireRole("ADMIN","SUPER_ADMIN"),c.primary); r.delete("/:id",requireRole("ADMIN","SUPER_ADMIN"),c.remove); export default r;
