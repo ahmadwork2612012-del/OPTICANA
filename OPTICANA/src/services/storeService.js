@@ -1,19 +1,124 @@
-import { resolveMediaUrl } from "../utils/mediaUrl";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function apiGet(path) {
-  const response = await fetch(`${API_BASE_URL}${path}`, { headers: { Accept: "application/json" } });
-  let data=null; try{data=await response.json()}catch{}
-  if(!response.ok||data?.success===false){const error=new Error(data?.error?.message||"فشل تحميل بيانات المتجر");error.code=data?.error?.code||"API_ERROR";throw error}
-  return data?.data??{};
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { Accept: "application/json" },
+  });
+  let data = null;
+  try { data = await response.json(); } catch {}
+  if (!response.ok || data?.success === false) {
+    const error = new Error(data?.error?.message || "فشل تحميل بيانات المتجر");
+    error.code = data?.error?.code || "API_ERROR";
+    throw error;
+  }
+  return data?.data ?? {};
 }
 
-const DEFAULT_CONTENT={home:{hero:{enabled:true,title:"عيونك أحلى معانا",subtitle:"اكتشف تشكيلتنا المميزة من النظارات والعدسات بتصاميم تجمع بين الأناقة والجودة.",primaryButton:{enabled:true,text:"تسوق الآن",link:"/products"},secondaryButton:{enabled:true,text:"تعرف علينا",link:"/about"},image:null},announcement:{enabled:false,text:"",link:"/products"},categories:{enabled:true,title:"تسوق حسب الفئة",description:"اختر الفئة التي تناسب احتياجك.",limit:6},featuredProducts:{enabled:true,title:"منتجاتنا المميزة",description:"اختيارات مميزة من أحدث منتجات OPTICANA.",limit:8},whyUs:{enabled:true,title:"لماذا OPTICANA؟",description:"نهتم بكل تفاصيل تجربة العميل.",items:[]},statistics:{enabled:true,title:"OPTICANA بالأرقام",items:[]},offers:{enabled:true,title:"عروض مميزة",description:"اكتشف أحدث العروض والخصومات."},reviews:{enabled:true,title:"آراء عملائنا",description:"تجارب حقيقية من عملاء OPTICANA."},faq:{enabled:true,title:"الأسئلة الشائعة",description:"إجابات سريعة عن أكثر الأسئلة شيوعًا.",items:[]},cta:{enabled:true,title:"جاهز تختار نظارتك الجديدة؟",description:"اكتشف تشكيلتنا وتسوق الآن.",buttonText:"تسوق الآن",buttonLink:"/products"}},about:{},contact:{},faq:{},footer:{enabled:true,description:"",quickLinks:[],socialLinks:{}},maintenance:{enabled:false,title:"المتجر تحت الصيانة",description:"نعمل حاليًا على تطوير المتجر. سنعود قريبًا.",image:null,showLogo:true,buttonEnabled:true,buttonText:"تواصل معنا",buttonLink:"/contact"},seo:{title:"OPTICANA | عيونك أحلى معانا",description:"",keywords:"",socialImage:null},banners:[]};
+const DEFAULT_CONTENT = {
+  home: {
+    hero: { enabled:true, title:"عيونك أحلى معانا", subtitle:"اكتشف تشكيلتنا المميزة من النظارات والعدسات بتصاميم تجمع بين الأناقة والجودة.", primaryButton:{enabled:true,text:"تسوق الآن",link:"/products"}, secondaryButton:{enabled:true,text:"تعرف علينا",link:"/about"}, image:null },
+    announcement:{enabled:false,text:"",link:"/products"},
+    categories:{enabled:true,title:"تسوق حسب الفئة",description:"اختر الفئة التي تناسب احتياجك.",limit:6},
+    featuredProducts:{enabled:true,title:"منتجاتنا المميزة",description:"اختيارات مميزة من أحدث منتجات OPTICANA.",limit:8},
+    whyUs:{enabled:true,title:"لماذا OPTICANA؟",description:"نهتم بكل تفاصيل تجربة العميل.",items:[]},
+    statistics:{enabled:true,title:"OPTICANA بالأرقام",items:[]},
+    offers:{enabled:true,title:"عروض مميزة",description:"اكتشف أحدث العروض والخصومات."},
+    reviews:{enabled:true,title:"آراء عملائنا",description:"تجارب حقيقية من عملاء OPTICANA."},
+    faq:{enabled:true,title:"الأسئلة الشائعة",description:"إجابات سريعة عن أكثر الأسئلة شيوعًا.",items:[]},
+    cta:{enabled:true,title:"جاهز تختار نظارتك الجديدة؟",description:"اكتشف تشكيلتنا وتسوق الآن.",buttonText:"تسوق الآن",buttonLink:"/products"},
+  },
+  about:{},contact:{},faq:{},footer:{enabled:true,description:"",quickLinks:[],socialLinks:{}},
+  maintenance:{enabled:false,title:"المتجر تحت الصيانة",description:"نعمل حاليًا على تطوير المتجر. سنعود قريبًا.",image:null,showLogo:true,buttonEnabled:true,buttonText:"تواصل معنا",buttonLink:"/contact"},
+  seo:{title:"OPTICANA | عيونك أحلى معانا",description:"",keywords:"",socialImage:null},banners:[],
+};
 
-function normalizeMediaDeep(value){if(typeof value==="string")return resolveMediaUrl(value);if(Array.isArray(value))return value.map(normalizeMediaDeep);if(value&&typeof value==="object")return Object.fromEntries(Object.entries(value).map(([key,child])=>[key,normalizeMediaDeep(child)]));return value}
-function mergeDeep(base,source){if(!source||typeof source!=="object"||Array.isArray(source))return source;const result={...(base||{})};for(const key of Object.keys(source)){const value=source[key];result[key]=value&&typeof value==="object"&&!Array.isArray(value)?mergeDeep(result[key]||{},value):value}return result}
-export async function getStoreContent(){return normalizeMediaDeep(mergeDeep(DEFAULT_CONTENT,await apiGet("/content")||{}))}
-export async function getStoreSettings(){return normalizeMediaDeep(await apiGet("/settings")||{})}
-export async function getStoreInfo(){const [content,settings]=await Promise.all([getStoreContent(),getStoreSettings()]);const business=settings.business||{},general=settings.general||{},appearance=settings.appearance||settings.branding||{},contact=content.contact||{},footer=content.footer||{},seo=content.seo||settings.seo||{};return {name:general.storeName||business.storeName||"OPTICANA",slogan:general.slogan||business.slogan||"عيونك أحلى معانا",logo:resolveMediaUrl(appearance.logo||general.logo||business.logo||null)||"/opticana-logo.png",favicon:resolveMediaUrl(appearance.favicon||general.favicon||business.favicon||null)||"/favicon.svg",phone:contact.phone||general.phone||business.phone||"",whatsapp:contact.whatsapp||general.whatsapp||business.whatsapp||"",email:contact.email||general.email||business.email||"",address:contact.address||general.address||business.address||"",workingHours:contact.workingHours||business.workingHours||"",mapUrl:contact.mapUrl||business.googleMaps||business.mapUrl||"",instagram:contact.instagram||business.instagram||footer.socialLinks?.instagram||"",facebook:contact.facebook||business.facebook||footer.socialLinks?.facebook||"",tiktok:contact.tiktok||business.tiktok||footer.socialLinks?.tiktok||"",whatsappLink:footer.socialLinks?.whatsapp||contact.whatsapp||business.whatsapp||"",primaryColor:appearance.primaryColor||"#B4C4AD",currency:settings.general?.currency||business.currency||"ج.م",seoTitle:seo.title||"OPTICANA | عيونك أحلى معانا",seoDescription:seo.description||"",seoKeywords:seo.keywords||"",socialImage:resolveMediaUrl(seo.socialImage||null),footerDescription:footer.description||"",footerLinks:Array.isArray(footer.quickLinks)?footer.quickLinks.filter(x=>x?.enabled!==false):[],maintenance:{...DEFAULT_CONTENT.maintenance,...(content.maintenance||{}),enabled:settings.store?.maintenanceMode===true||content.maintenance?.enabled===true},storeEnabled:settings.store?.enabled!==false,showPrices:settings.store?.showPrices!==false,allowGuestCheckout:settings.store?.allowGuestCheckout!==false,requirePhone:settings.store?.requirePhone!==false,allowReviews:settings.store?.allowReviews!==false,allowFavorites:settings.store?.allowFavorites!==false}}
-export async function createStoreOrder({customer,items,notes=null}){const whatsapp=String(customer?.whatsapp||customer?.phone||"").trim();if(!whatsapp){const error=new Error("رقم واتساب مطلوب لإتمام الطلب");error.code="WHATSAPP_REQUIRED";throw error}const normalizedCustomer={...(customer||{}),whatsapp,phone:String(customer?.phone||whatsapp).trim()};const response=await fetch(`${API_BASE_URL}/orders`,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({customer:normalizedCustomer,items:items.map(item=>({productId:item.productId||item.id,quantity:Number(item.quantity)})),discount:0,paymentMethod:"WHATSAPP",source:"store",notes})});let data=null;try{data=await response.json()}catch{}if(!response.ok||data?.success===false){const error=new Error(data?.error?.message||"تعذر إنشاء الطلب");error.code=data?.error?.code||"ORDER_CREATE_FAILED";throw error}return data?.data}
-export default {getStoreInfo,getStoreContent,getStoreSettings,createStoreOrder};
+function mergeDeep(base, source) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) return source;
+  const result={...(base||{})};
+  for (const key of Object.keys(source)) {
+    const value=source[key];
+    result[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? mergeDeep(result[key] || {}, value)
+      : value;
+  }
+  return result;
+}
+
+export async function getStoreContent() {
+  const content = await apiGet("/content");
+  return mergeDeep(DEFAULT_CONTENT, content || {});
+}
+
+export async function getStoreSettings() {
+  return (await apiGet("/settings")) || {};
+}
+
+export async function getStoreInfo() {
+  const [content, settings] = await Promise.all([
+    getStoreContent(),
+    getStoreSettings(),
+  ]);
+  const business = settings.business || {};
+  const general = settings.general || {};
+  const appearance = settings.appearance || settings.branding || {};
+  const contact = content.contact || {};
+  const footer = content.footer || {};
+  const seo = content.seo || settings.seo || {};
+  return {
+    name: general.storeName || business.storeName || "OPTICANA",
+    slogan: general.slogan || business.slogan || "عيونك أحلى معانا",
+    logo: appearance.logo || general.logo || business.logo || null,
+    favicon: appearance.favicon || general.favicon || business.favicon || null,
+    phone: contact.phone || general.phone || business.phone || "",
+    whatsapp: contact.whatsapp || general.whatsapp || business.whatsapp || "",
+    email: contact.email || general.email || business.email || "",
+    address: contact.address || general.address || business.address || "",
+    workingHours: contact.workingHours || business.workingHours || "",
+    mapUrl: contact.mapUrl || business.googleMaps || business.mapUrl || "",
+    instagram: contact.instagram || business.instagram || footer.socialLinks?.instagram || "",
+    facebook: contact.facebook || business.facebook || footer.socialLinks?.facebook || "",
+    tiktok: contact.tiktok || business.tiktok || footer.socialLinks?.tiktok || "",
+    whatsappLink: footer.socialLinks?.whatsapp || contact.whatsapp || business.whatsapp || "",
+    primaryColor: appearance.primaryColor || "#B4C4AD",
+    currency: settings.general?.currency || business.currency || "ج.م",
+    seoTitle: seo.title || "OPTICANA | عيونك أحلى معانا",
+    seoDescription: seo.description || "",
+    seoKeywords: seo.keywords || "",
+    socialImage: seo.socialImage || null,
+    footerDescription: footer.description || "",
+    footerLinks: Array.isArray(footer.quickLinks) ? footer.quickLinks.filter(x=>x?.enabled!==false) : [],
+    maintenance: content.maintenance || DEFAULT_CONTENT.maintenance,
+  };
+}
+
+
+
+export async function createStoreOrder({ customer, items, notes = null }) {
+  const response = await fetch(`${API_BASE_URL}/orders`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      customer,
+      items: items.map((item) => ({
+        productId: item.productId || item.id,
+        quantity: Number(item.quantity),
+      })),
+      discount: 0,
+      paymentMethod: "WHATSAPP",
+      source: "store",
+      notes,
+    }),
+  });
+
+  let data = null;
+  try { data = await response.json(); } catch {}
+  if (!response.ok || data?.success === false) {
+    const error = new Error(data?.error?.message || "تعذر إنشاء الطلب");
+    error.code = data?.error?.code || "ORDER_CREATE_FAILED";
+    throw error;
+  }
+  return data?.data;
+}
+
+export default { getStoreInfo, getStoreContent, getStoreSettings, createStoreOrder };
