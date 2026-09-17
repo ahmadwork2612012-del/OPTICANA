@@ -1,0 +1,4 @@
+import { createUser, listUsers, updateUser } from "../services/auth.service.js";
+export async function list(req,res,next){try{res.json({success:true,data:await listUsers()})}catch(e){next(e)}}
+export async function create(req,res,next){try{const {name,email,password,role}=req.body||{};if(!name||!email||!password){const e=new Error("Name, email and password are required");e.statusCode=400;e.code="VALIDATION_ERROR";throw e}if(String(password).length<8){const e=new Error("Password must be at least 8 characters");e.statusCode=400;e.code="VALIDATION_ERROR";throw e}res.status(201).json({success:true,data:await createUser({name,email,password,role})})}catch(e){next(e)}}
+export async function update(req,res,next){try{res.json({success:true,data:await updateUser(req.params.id,req.body||{},req.user.id)})}catch(e){next(e)}}

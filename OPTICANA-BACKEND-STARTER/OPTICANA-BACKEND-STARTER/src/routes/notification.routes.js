@@ -1,0 +1,2 @@
+import {Router} from "express"; import {requireAuth,requireRole} from "../middleware/auth.middleware.js"; import * as c from "../controllers/notification.controller.js";
+const r=Router(); r.use(requireAuth,requireRole("ADMIN","SUPER_ADMIN","STAFF")); r.get("/",c.list); r.post("/",requireRole("ADMIN","SUPER_ADMIN"),c.create); r.patch("/:id/read",c.read); r.patch("/:id/unread",c.unread); r.delete("/read",requireRole("ADMIN","SUPER_ADMIN"),c.clear); r.delete("/:id",requireRole("ADMIN","SUPER_ADMIN"),c.remove); export default r;

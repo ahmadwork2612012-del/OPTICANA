@@ -1,0 +1,2 @@
+import {Router} from "express"; import {requireAuth,requireRole} from "../middleware/auth.middleware.js"; import {adminListRepairs,adminGetRepair,adminCreateRepair,adminUpdateRepair,adminDeleteRepair} from "../controllers/repair.controller.js";
+const router=Router(); router.use(requireAuth,requireRole("ADMIN","SUPER_ADMIN","STAFF")); router.get("/",adminListRepairs); router.get("/:id",adminGetRepair); router.post("/",adminCreateRepair); router.patch("/:id",adminUpdateRepair); router.delete("/:id",requireRole("ADMIN","SUPER_ADMIN"),adminDeleteRepair); export default router;
