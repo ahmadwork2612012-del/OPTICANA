@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    {"source":"/manage","destination":"/"},
+    {"source":"/manage/(.*)","destination":"/"},
+    {"source":"/products","destination":"/"},
+    {"source":"/product/(.*)","destination":"/"},
+    {"source":"/offers","destination":"/"},
+    {"source":"/about","destination":"/"},
+    {"source":"/contact","destination":"/"},
+    {"source":"/cart","destination":"/"},
+    {"source":"/favorites","destination":"/"}
+  ]
+}

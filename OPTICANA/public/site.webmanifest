@@ -1,0 +1,11 @@
+{
+  "name":"OPTICANA",
+  "short_name":"OPTICANA",
+  "lang":"ar",
+  "dir":"rtl",
+  "start_url":"/",
+  "display":"standalone",
+  "theme_color":"#B4C4AD",
+  "background_color":"#EFE8E2",
+  "icons":[{"src":"/favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
