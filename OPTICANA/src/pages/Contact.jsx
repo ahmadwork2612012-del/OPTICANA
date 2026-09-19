@@ -32,6 +32,24 @@ import Loading from "../components/ui/Loading";
    CONTACT
 ===================================== */
 
+function normalizeMapEmbedUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    const url = new URL(raw);
+    if (!/(^|\.)google\.[a-z.]+$/i.test(url.hostname) || url.pathname.includes("/maps/embed")) return raw;
+    const query = url.searchParams.get("q") || url.searchParams.get("query");
+    const place = url.pathname.match(/\/maps\/place\/([^/?]+)/i)?.[1];
+    const coordinates = url.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/)?.slice(1).join(",");
+    const location = query || (place ? decodeURIComponent(place).replace(/\+/g, " ") : coordinates);
+    return location
+      ? `https://www.google.com/maps?q=${encodeURIComponent(location)}&output=embed`
+      : raw;
+  } catch {
+    return raw;
+  }
+}
+
 function Contact() {
   const [
     content,
@@ -184,6 +202,8 @@ function Contact() {
     store?.mapUrl ||
     "";
 
+  const mapEmbedUrl = normalizeMapEmbedUrl(mapUrl);
+
 
   const instagram =
     store?.instagram ||
@@ -252,7 +272,7 @@ function Contact() {
             className="max-w-3xl"
           >
 
-            <span className="inline-flex items-center rounded-full bg-[#eef2eb] px-4 py-2 text-xs font-black text-[#5c6b58]">
+            <span className="inline-flex items-center rounded-full bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#5c6b58]">
               {storeName}
             </span>
 
@@ -387,7 +407,7 @@ function Contact() {
 
                 <div className="flex items-start gap-4">
 
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#eef2eb] text-[#63715f]">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#63715f]">
                     <MapPin
                       size={
                         20
@@ -435,7 +455,7 @@ function Contact() {
               {hasMap ? (
                 <iframe
                   src={
-                    mapUrl
+                    mapEmbedUrl
                   }
                   title="موقع OPTICANA"
                   className="h-[380px] w-full border-0 sm:h-[500px]"
@@ -443,7 +463,7 @@ function Contact() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               ) : (
-                <div className="flex min-h-[380px] h-full flex-col items-center justify-center bg-[#eef2eb] p-8 text-center sm:min-h-[500px]">
+                <div className="flex min-h-[380px] h-full flex-col items-center justify-center bg-[#EFE8E2] p-8 text-center sm:min-h-[500px]">
 
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#B4C4AD] text-[#263024]">
 
@@ -467,7 +487,7 @@ function Contact() {
 
 
                   <p className="mt-4 text-xs font-bold text-[#9aa398]">
-                    يمكن إضافته من لوحة إدارة المتجر.
+                    يمكن إضافته من إدارة المتجر.
                   </p>
 
                 </div>
@@ -486,7 +506,7 @@ function Contact() {
           SOCIAL
       ===================================== */}
 
-      <section className="border-y border-[#e2e7df] bg-[#eef2eb] py-16">
+      <section className="border-y border-[#e2e7df] bg-[#EFE8E2] py-16">
 
         <div className="mx-auto max-w-7xl px-6">
 
@@ -506,7 +526,7 @@ function Contact() {
 
 
               <p className="mt-3 text-sm leading-7 text-[#788374]">
-                جميع روابط التواصل الاجتماعي يتم التحكم بها من لوحة الإدارة.
+                جميع روابط التواصل الاجتماعي يتم التحكم بها من إدارة المتجر.
               </p>
 
             </div>
@@ -602,7 +622,7 @@ function Contact() {
 
       <section className="mx-auto max-w-7xl px-6 py-20">
 
-        <div className="rounded-[2.5rem] bg-[#2f382c] p-8 text-white sm:p-12">
+        <div className="rounded-[2.5rem] bg-[#B4C4AD] p-8 text-white sm:p-12">
 
           <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-center">
 
@@ -697,7 +717,7 @@ function ContactCard({
   const content = (
     <div className="flex h-full flex-col rounded-[1.75rem] border border-[#dfe6dc] bg-white p-5 shadow-sm transition sm:p-6">
 
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2eb] text-[#63715f]">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#63715f]">
         <Icon
           size={
             20
@@ -805,7 +825,7 @@ function SocialButton({
           ? "noreferrer"
           : undefined
       }
-      className="inline-flex items-center gap-2 rounded-xl border border-[#d2ddd0] bg-white px-4 py-3 text-xs font-black text-[#52604e] transition hover:-translate-y-0.5 hover:border-[#B4C4AD] hover:bg-[#f7f9f5]"
+      className="inline-flex items-center gap-2 rounded-xl border border-[#d2ddd0] bg-white px-4 py-3 text-xs font-black text-[#52604e] transition hover:-translate-y-0.5 hover:border-[#B4C4AD] hover:bg-[#EFE8E2]"
     >
       {content}
     </a>

@@ -264,7 +264,7 @@ function Offers() {
 
             <div className="max-w-2xl">
 
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#eef2eb] px-3.5 py-2 text-xs font-black text-[#596655]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#EFE8E2] px-3.5 py-2 text-xs font-black text-[#596655]">
 
                 <Sparkles
                   size={14}
@@ -293,7 +293,7 @@ function Offers() {
 
             <Link
               to="/products"
-              className="inline-flex w-fit items-center gap-2 rounded-xl border border-[#cfdacb] bg-white px-5 py-3 text-sm font-black text-[#4f5d4c] transition hover:border-[#B4C4AD] hover:bg-[#eef2eb]"
+              className="inline-flex w-fit items-center gap-2 rounded-xl border border-[#cfdacb] bg-white px-5 py-3 text-sm font-black text-[#4f5d4c] transition hover:border-[#B4C4AD] hover:bg-[#EFE8E2]"
             >
 
               كل المنتجات
@@ -315,7 +315,7 @@ function Offers() {
           OFFER STRIP
       ===================================== */}
 
-      <section className="border-b border-[#dfe7dc] bg-[#eef2eb]">
+      <section className="border-b border-[#dfe7dc] bg-[#EFE8E2]">
 
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
 
@@ -355,7 +355,7 @@ function Offers() {
               size={15}
             />
 
-            البيانات محدثة من لوحة الإدارة
+            البيانات محدثة من إدارة المتجر
 
           </div>
 
@@ -406,7 +406,7 @@ function Offers() {
 
               <div className="rounded-[2rem] border border-dashed border-[#ced9ca] bg-white p-8 text-center shadow-sm sm:p-12">
 
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#eef2eb] text-[#6c7b67]">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EFE8E2] text-[#6c7b67]">
 
                   <Tag
                     size={30}
@@ -419,7 +419,7 @@ function Offers() {
 
                   <EmptyState
                     title="لا توجد عروض حاليًا"
-                    description="ستظهر هنا المنتجات التي يفعّل لها Admin خيار العرض ويحدد لها سعرًا قديمًا وسعرًا حاليًا."
+                    description="ستظهر هنا المنتجات التي يفعّل لها Store Management خيار العرض ويحدد لها سعرًا قديمًا وسعرًا حاليًا."
                   />
 
                 </div>
@@ -427,7 +427,7 @@ function Offers() {
 
                 <Link
                   to="/products"
-                  className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#2f382c] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3c4838]"
+                  className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3 text-sm font-black text-white transition hover:bg-[#9ead97]"
                 >
 
                   تصفح المنتجات
@@ -454,7 +454,7 @@ function Offers() {
 
       <section className="mx-auto max-w-7xl px-6 pb-20">
 
-        <div className="overflow-hidden rounded-[2rem] bg-[#2f382c] p-7 text-white sm:p-10">
+        <div className="overflow-hidden rounded-[2rem] bg-[#B4C4AD] p-7 text-white sm:p-10">
 
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
 

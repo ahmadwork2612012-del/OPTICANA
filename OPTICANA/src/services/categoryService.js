@@ -1,6 +1,9 @@
-const API_BASE_URL =
+import { resolveMediaUrl } from "../utils/mediaUrl";
+import { registerCatalogTranslation } from "../context/LanguageContext";
+const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL ||
-  "/api";
+  "/api"
+).replace(/\/$/, "");
 
 
 /* =====================================
@@ -74,6 +77,9 @@ function normalizeCategory(
     return null;
   }
 
+  registerCatalogTranslation(category.name, category.nameEn);
+  registerCatalogTranslation(category.description, category.descriptionEn);
+
 
   return {
     id:
@@ -93,7 +99,7 @@ function normalizeCategory(
       "",
 
     image:
-      category.imageUrl ||
+      resolveMediaUrl(category.imageUrl) ||
       null,
 
     sortOrder:

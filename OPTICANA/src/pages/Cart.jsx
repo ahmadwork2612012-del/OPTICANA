@@ -26,6 +26,7 @@ import EmptyState from "../components/common/EmptyState";
 import Loading from "../components/ui/Loading";
 
 import useCartStore from "../store/cartStore";
+import { useLanguage } from "../context/LanguageContext";
 
 import {
   getProducts,
@@ -42,6 +43,8 @@ import {
 ===================================== */
 
 function Cart() {
+  const { isEnglish, t } = useLanguage();
+
   const cart =
     useCartStore(
       (state) =>
@@ -352,6 +355,7 @@ function Cart() {
   }, [
     loading,
     cartItems,
+    cart.length,
     setQuantity,
   ]);
 
@@ -445,6 +449,11 @@ function Cart() {
     store?.currency ||
     "ج.م";
 
+  const displayCurrency =
+    isEnglish && currency === "ج.م"
+      ? "EGP"
+      : currency;
+
 
   const whatsappNumber =
     store?.whatsapp ||
@@ -480,6 +489,19 @@ function Cart() {
                   0
               );
 
+            if (isEnglish) {
+              return `Product ${index + 1}
+Name: ${item.name}
+Category: ${
+                item.currentProduct
+                  ?.category ||
+                item.category ||
+                "-"
+              }
+Quantity: ${item.quantity}
+Unit price: ${item.currentPrice} ${displayCurrency}
+Product total: ${itemTotal} ${displayCurrency}`;
+            }
 
             return `المنتج ${index + 1}
 الاسم: ${item.name}
@@ -494,36 +516,30 @@ function Cart() {
             }
 سعر القطعة: ${
               item.currentPrice
-            } ${currency}
+            } ${displayCurrency}
 إجمالي المنتج: ${
               itemTotal
-            } ${currency}`;
+            } ${displayCurrency}`;
           }
         );
 
-
-      return encodeURIComponent(
-        `السلام عليكم،
-
-أرغب بطلب المنتجات التالية:
-
-${lines.join(
+      const message = isEnglish
+        ? `Hello,\n\nI would like to order the following products:\n\n${lines.join(
   "\n\n"
-)}
+)}\n\n━━━━━━━━━━━━━━\n\nTotal items: ${availableItemsCount}\nTotal: ${total} ${displayCurrency}\n\nPlease confirm product availability. Thank you.`
+        : `السلام عليكم،\n\nأرغب بطلب المنتجات التالية:\n\n${lines.join(
+  "\n\n"
+)}\n\n━━━━━━━━━━━━━━\n\nعدد القطع: ${availableItemsCount}\nالإجمالي: ${total} ${displayCurrency}\n\nأرجو تأكيد توفر المنتجات، وشكرًا لكم.`;
 
-━━━━━━━━━━━━━━
-
-عدد القطع: ${availableItemsCount}
-الإجمالي: ${total} ${currency}
-
-أرجو تأكيد توفر المنتجات، وشكرًا لكم.`
-      );
+      return encodeURIComponent(message);
     }, [
       availableItems,
       availableItemsCount,
       total,
-      currency,
+      displayCurrency,
+      isEnglish,
     ]);
+
 
 
   /* =====================================
@@ -533,10 +549,10 @@ ${lines.join(
   const handleCheckout = async () => {
     if (!canCheckout || checkoutLoading) return;
 
-    const customerName = window.prompt("اكتب اسمك لإتمام الطلب:");
+    const customerName = window.prompt(t("اكتب اسمك لإتمام الطلب:"));
     if (!customerName?.trim()) return;
 
-    const phone = window.prompt("اكتب رقم الهاتف للتواصل:");
+    const phone = window.prompt(t("اكتب رقم الهاتف للتواصل:"));
     if (!phone?.trim()) return;
 
     try {
@@ -554,7 +570,7 @@ ${lines.join(
       const orderNumber = order?.orderNumber || order?.id || "";
       const message = `${decodeURIComponent(whatsappMessage)}
 
-رقم الطلب: ${orderNumber}
+${isEnglish ? `Order number: ${orderNumber}` : `رقم الطلب: ${orderNumber}`}
 `;
 
       window.open(
@@ -563,9 +579,9 @@ ${lines.join(
         "noopener,noreferrer"
       );
 
-      toast.success(`تم إنشاء الطلب ${orderNumber}`);
+      toast.success(t(`تم إنشاء الطلب ${orderNumber}`));
     } catch (error) {
-      toast.error(error?.message || "تعذر إنشاء الطلب، حاول مرة أخرى");
+      toast.error(t(error?.message || "تعذر إنشاء الطلب، حاول مرة أخرى"));
     } finally {
       setCheckoutLoading(false);
     }
@@ -579,7 +595,7 @@ ${lines.join(
     (item) => {
       const confirmed =
         window.confirm(
-          `هل أنت متأكد من حذف "${item.name}" من السلة؟`
+          t(`هل أنت متأكد من حذف "${item.name}" من السلة؟`)
         );
 
 
@@ -594,7 +610,7 @@ ${lines.join(
 
 
       toast.success(
-        "تم حذف المنتج من السلة"
+        t("تم حذف المنتج من السلة")
       );
     };
 
@@ -608,7 +624,7 @@ ${lines.join(
       if (
         hasUnavailable
       ) {
-        return "راجع المنتجات غير المتاحة أولًا";
+        return t("راجع المنتجات غير المتاحة أولًا");
       }
 
 
@@ -616,14 +632,14 @@ ${lines.join(
         availableItems.length ===
         0
       ) {
-        return "لا توجد منتجات متاحة للطلب";
+        return t("لا توجد منتجات متاحة للطلب");
       }
 
 
       if (
         !whatsappNumber
       ) {
-        return "واتساب غير مضاف في إعدادات المتجر";
+        return t("واتساب غير مضاف في إعدادات المتجر");
       }
 
 
@@ -659,7 +675,7 @@ ${lines.join(
 
           <div className="mb-10 flex items-center gap-3">
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2eb] text-[#52604e]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#52604e]">
 
               <ShoppingBag
                 size={24}
@@ -685,7 +701,7 @@ ${lines.join(
 
             <Link
               to="/products"
-              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2f382c] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3c4838]"
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3 text-sm font-black text-white transition hover:bg-[#9ead97]"
             >
 
               <ArrowLeft
@@ -726,7 +742,7 @@ ${lines.join(
 
             <div className="mt-2 flex items-center gap-3">
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2eb] text-[#52604e]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#52604e]">
 
                 <ShoppingBag
                   size={23}
@@ -762,7 +778,7 @@ ${lines.join(
 
           <Link
             to="/products"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#cfdacb] bg-white px-5 py-3 text-sm font-black text-[#4f5d4c] transition hover:border-[#B4C4AD] hover:bg-[#eef2eb]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#cfdacb] bg-white px-5 py-3 text-sm font-black text-[#4f5d4c] transition hover:border-[#B4C4AD] hover:bg-[#EFE8E2]"
           >
 
             <ArrowLeft
@@ -799,7 +815,7 @@ ${lines.join(
 
 
                 <p className="mt-1 text-xs leading-6 text-[#8b7850]">
-                  بعض المنتجات لم تعد متاحة أو تغير مخزونها في لوحة الإدارة.
+                  بعض المنتجات لم تعد متاحة أو تغير مخزونها في إدارة المتجر.
                   احذفها أو عدّل الكمية قبل إتمام الطلب.
                 </p>
 
@@ -819,7 +835,7 @@ ${lines.join(
           (item) =>
             item.hasPriceChanged
         ) && (
-          <div className="mt-4 rounded-2xl border border-[#dce5d8] bg-[#eef2eb] p-4">
+          <div className="mt-4 rounded-2xl border border-[#dce5d8] bg-[#EFE8E2] p-4">
 
             <div className="flex items-start gap-3">
 
@@ -897,7 +913,7 @@ ${lines.join(
 
                       <Link
                         to={`/product/${item.id}`}
-                        className="group h-40 w-full shrink-0 overflow-hidden rounded-2xl bg-[#eef2eb] sm:h-36 sm:w-36"
+                        className="group h-40 w-full shrink-0 overflow-hidden rounded-2xl bg-[#EFE8E2] sm:h-36 sm:w-36"
                       >
 
                         {image ? (
@@ -1004,7 +1020,7 @@ ${lines.join(
 
                             </div>
                           ) : (
-                            <div className="inline-flex items-center gap-2 rounded-lg bg-[#eef2eb] px-3 py-1.5 text-xs font-black text-[#5c6a57]">
+                            <div className="inline-flex items-center gap-2 rounded-lg bg-[#EFE8E2] px-3 py-1.5 text-xs font-black text-[#5c6a57]">
 
                               <Package
                                 size={14}
@@ -1122,7 +1138,7 @@ ${lines.join(
                                   item.quantity <=
                                   1
                                 }
-                                className="flex h-10 w-10 items-center justify-center text-[#5f6b5d] transition hover:bg-[#eef2eb] disabled:cursor-not-allowed disabled:opacity-40"
+                                className="flex h-10 w-10 items-center justify-center text-[#5f6b5d] transition hover:bg-[#EFE8E2] disabled:cursor-not-allowed disabled:opacity-40"
                               >
 
                                 <Minus
@@ -1181,7 +1197,7 @@ ${lines.join(
                                       maxStock
                                   )
                                 }
-                                className="flex h-10 w-10 items-center justify-center text-[#5f6b5d] transition hover:bg-[#eef2eb] disabled:cursor-not-allowed disabled:opacity-40"
+                                className="flex h-10 w-10 items-center justify-center text-[#5f6b5d] transition hover:bg-[#EFE8E2] disabled:cursor-not-allowed disabled:opacity-40"
                               >
 
                                 <Plus
@@ -1318,7 +1334,7 @@ ${lines.join(
                 type="button"
                 onClick={handleCheckout}
                 disabled={checkoutLoading}
-                className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-[#2f382c] px-5 py-4 text-sm font-black text-white transition hover:bg-[#3c4838] disabled:cursor-wait disabled:opacity-60"
+                className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-4 text-sm font-black text-white transition hover:bg-[#9ead97] disabled:cursor-wait disabled:opacity-60"
               >
                 <MessageCircle size={20} />
                 {checkoutLoading ? "جاري إنشاء الطلب..." : "إتمام الطلب عبر واتساب"}

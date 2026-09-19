@@ -9,11 +9,13 @@ import About from "../pages/About";
 import Offers from "../pages/Offers";
 import Contact from "../pages/Contact";
 import NotFound from "../pages/NotFound";
+import Manager from "../pages/Manager";
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/manage" element={<Manager />} />
 
       <Route
         path="/products"

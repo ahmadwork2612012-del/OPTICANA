@@ -383,7 +383,7 @@ function SearchDrawer({
 
             <div>
 
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#eef2eb] px-3 py-1.5 text-xs font-black text-[#596655]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#EFE8E2] px-3 py-1.5 text-xs font-black text-[#596655]">
 
                 <Search
                   size={14}
@@ -400,7 +400,7 @@ function SearchDrawer({
 
 
               <p className="mt-2 text-sm leading-7 text-[#7d8879]">
-                البحث يعمل مباشرة على المنتجات المنشورة من لوحة الإدارة.
+                البحث يعمل مباشرة على المنتجات المنشورة من إدارة المتجر.
               </p>
 
             </div>
@@ -412,7 +412,7 @@ function SearchDrawer({
                 handleClose
               }
               aria-label="إغلاق"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#dfe6dc] bg-white text-[#697366] transition hover:bg-[#eef2eb]"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#dfe6dc] bg-white text-[#697366] transition hover:bg-[#EFE8E2]"
             >
               <X
                 size={20}
@@ -447,7 +447,7 @@ function SearchDrawer({
                 )
               }
               placeholder="اكتب اسم المنتج أو SKU أو الفئة..."
-              className="w-full rounded-2xl border border-[#dfe6dc] bg-white py-4 pl-12 pr-12 text-sm font-bold text-[#293126] outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#eef2eb]"
+              className="w-full rounded-2xl border border-[#dfe6dc] bg-white py-4 pl-12 pr-12 text-sm font-bold text-[#293126] outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#EFE8E2]"
             />
 
 
@@ -457,7 +457,7 @@ function SearchDrawer({
                 onClick={() =>
                   setQuery("")
                 }
-                className="absolute left-4 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#899487] hover:bg-[#eef2eb]"
+                className="absolute left-4 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#899487] hover:bg-[#EFE8E2]"
               >
                 <X
                   size={15}
@@ -658,7 +658,7 @@ function SearchDrawer({
                           className="group flex items-center gap-3 rounded-2xl border border-[#dfe6dc] bg-white p-3 transition hover:border-[#B4C4AD] hover:bg-[#f5f7f3]"
                         >
 
-                          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#eef2eb]">
+                          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#EFE8E2]">
 
                             {product.image ? (
                               <img
@@ -745,7 +745,7 @@ function SearchDrawer({
 
             </div>
           ) : (
-            <div className="mt-8 rounded-2xl border border-dashed border-[#d5ded2] bg-[#f7f9f5] px-6 py-10 text-center">
+            <div className="mt-8 rounded-2xl border border-dashed border-[#d5ded2] bg-[#EFE8E2] px-6 py-10 text-center">
 
               <SlidersHorizontal
                 size={28}
@@ -757,7 +757,7 @@ function SearchDrawer({
               </p>
 
               <p className="mt-1 text-xs text-[#919a90]">
-                جميع الخيارات مأخوذة من منتجات Admin.
+                جميع الخيارات مأخوذة من منتجات Store management.
               </p>
 
             </div>
@@ -786,7 +786,7 @@ function SearchDrawer({
               onClick={
                 handleClose
               }
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#2f382c] py-3.5 text-sm font-black text-white transition hover:bg-[#3c4838]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] py-3.5 text-sm font-black text-white transition hover:bg-[#9ead97]"
             >
               عرض المنتجات
 
@@ -836,7 +836,7 @@ function SelectField({
               .value
           )
         }
-        className="w-full rounded-xl border border-[#dfe6dc] bg-white px-4 py-3 text-sm font-bold text-[#596655] outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#eef2eb]"
+        className="w-full rounded-xl border border-[#dfe6dc] bg-white px-4 py-3 text-sm font-bold text-[#596655] outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#EFE8E2]"
       >
 
         <option value={ALL_FILTER}>
@@ -898,7 +898,7 @@ function PriceInput({
             )
           }
           placeholder="0"
-          className="w-full rounded-xl border border-[#dfe6dc] bg-white px-4 py-3 text-sm font-bold text-[#293126] outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#eef2eb]"
+          className="w-full rounded-xl border border-[#dfe6dc] bg-white px-4 py-3 text-sm font-bold text-[#293126] outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#EFE8E2]"
         />
 
         <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8b9588]">

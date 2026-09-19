@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 
 import {
   Helmet,
@@ -18,6 +19,9 @@ import Loading from "./components/ui/Loading";
 
 
 function App() {
+  const location = useLocation();
+  const isManagerRoute = location.pathname.replace(/\/$/, "").endsWith("/manage");
+
   const [
     store,
     setStore,
@@ -30,6 +34,10 @@ function App() {
 
 
   useEffect(() => {
+    const redirect = new URLSearchParams(window.location.search).get("redirect");
+    if (redirect && redirect.startsWith("/")) {
+      window.history.replaceState({}, "", redirect);
+    }
     let mounted = true;
 
 
@@ -76,6 +84,14 @@ function App() {
   }, []);
 
 
+  if (isManagerRoute) {
+    return (
+      <MainLayout>
+        <AppRoutes />
+      </MainLayout>
+    );
+  }
+
   if (loading) {
     return (
       <Loading />
@@ -103,10 +119,17 @@ function App() {
     store?.socialImage ||
     null;
 
+  const favicon =
+    store?.favicon ||
+    "/opticana-icon.png";
+
 
   return (
     <>
       <Helmet>
+
+        <link rel="icon" type="image/png" href={favicon} />
+        <link rel="apple-touch-icon" href={favicon} />
 
         <title>
           {title}

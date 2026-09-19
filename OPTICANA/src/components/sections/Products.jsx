@@ -315,7 +315,7 @@ function Products() {
 
             <div className="h-9 w-48 animate-pulse rounded-full bg-[#e7ece4] sm:h-11 sm:w-64" />
 
-            <div className="h-4 w-full max-w-xl animate-pulse rounded-full bg-[#eef2eb]" />
+            <div className="h-4 w-full max-w-xl animate-pulse rounded-full bg-[#EFE8E2]" />
 
             <div className="h-4 w-2/3 max-w-md animate-pulse rounded-full bg-[#f2f4f0]" />
 
@@ -326,13 +326,13 @@ function Products() {
 
           <div className="mb-10 flex flex-wrap gap-3">
 
-            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#eef2eb]" />
+            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#EFE8E2]" />
 
-            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#eef2eb]" />
+            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#EFE8E2]" />
 
-            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#eef2eb]" />
+            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#EFE8E2]" />
 
-            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#eef2eb]" />
+            <div className="h-11 w-28 animate-pulse rounded-xl bg-[#EFE8E2]" />
 
           </div>
 

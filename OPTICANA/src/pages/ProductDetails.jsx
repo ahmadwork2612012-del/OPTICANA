@@ -11,9 +11,11 @@ import {
   Plus,
   ShoppingCart,
   Star,
+  Share2,
 } from "lucide-react";
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -30,6 +32,7 @@ import {
 } from "framer-motion";
 
 import toast from "react-hot-toast";
+import { useLanguage } from "../context/LanguageContext";
 
 import {
   getProductById,
@@ -77,6 +80,7 @@ function getImageUrl(
 ===================================== */
 
 function ProductDetails() {
+  const { t } = useLanguage();
   const {
     id,
   } = useParams();
@@ -166,7 +170,7 @@ function ProductDetails() {
   ===================================== */
 
   const loadProduct =
-    async () => {
+    useCallback(async () => {
       try {
         setLoading(
           true
@@ -305,7 +309,7 @@ function ProductDetails() {
           false
         );
       }
-    };
+    }, [id]);
 
 
   useEffect(() => {
@@ -348,6 +352,7 @@ function ProductDetails() {
     };
   }, [
     id,
+    loadProduct,
   ]);
 
 
@@ -517,15 +522,6 @@ function ProductDetails() {
     stock <= 0;
 
 
-  const isLowStock =
-    stock > 0 &&
-    stock <=
-      Number(
-        product?.reorderLevel ||
-          0
-      );
-
-
   const maxQuantity =
     Math.max(
       1,
@@ -663,6 +659,28 @@ function ProductDetails() {
     };
 
 
+  const handleShare = async () => {
+    const shareData = {
+      title: product?.name || "OPTICANA",
+      text: product?.name || "OPTICANA",
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success(t("تم نسخ رابط المنتج"));
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        toast.error(t("تعذر مشاركة المنتج"));
+      }
+    }
+  };
+
+
   const handleFavorite =
     () => {
       toggleFavorite(
@@ -741,7 +759,7 @@ function ProductDetails() {
 
         <div className="mx-auto max-w-2xl rounded-[2rem] border border-[#dfe6dc] bg-white p-10 text-center shadow-sm">
 
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#eef2eb] text-[#657361]">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EFE8E2] text-[#657361]">
 
             <Package
               size={30}
@@ -756,13 +774,13 @@ function ProductDetails() {
 
 
           <p className="mt-2 text-sm leading-7 text-[#808a7d]">
-            قد يكون المنتج غير منشور أو تم حذفه من لوحة الإدارة.
+            قد يكون المنتج غير منشور أو تم حذفه من إدارة المتجر.
           </p>
 
 
           <Link
             to="/products"
-            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#2f382c] px-5 py-3 font-black text-white"
+            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3 font-black text-white"
           >
 
             العودة للمنتجات
@@ -837,7 +855,7 @@ function ProductDetails() {
 
             <div>
 
-              <div className="relative overflow-hidden rounded-[2.5rem] border border-[#dfe6dc] bg-[#eef2eb]">
+              <div className="relative overflow-hidden rounded-[2.5rem] border border-[#dfe6dc] bg-[#EFE8E2]">
 
                 <div className="aspect-square sm:aspect-[1.08]">
 
@@ -906,7 +924,7 @@ function ProductDetails() {
 
                 {discount >
                   0 && (
-                  <span className="absolute left-5 top-5 rounded-full bg-[#2f382c] px-4 py-2 text-xs font-black text-white shadow-lg">
+                  <span className="absolute left-5 top-5 rounded-full bg-[#B4C4AD] px-4 py-2 text-xs font-black text-white shadow-lg">
                     خصم{" "}
                     {discount}%
                   </span>
@@ -1038,14 +1056,14 @@ function ProductDetails() {
                   to={`/products?category=${encodeURIComponent(
                     product.category
                   )}`}
-                  className="w-fit rounded-full bg-[#eef2eb] px-4 py-2 text-xs font-black text-[#596655] transition hover:bg-[#e3ebdf]"
+                  className="w-fit rounded-full bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#596655] transition hover:bg-[#e3ebdf]"
                 >
                   {
                     product.category
                   }
                 </Link>
               ) : (
-                <span className="w-fit rounded-full bg-[#eef2eb] px-4 py-2 text-xs font-black text-[#98a398]">
+                <span className="w-fit rounded-full bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#98a398]">
                   بدون تصنيف
                 </span>
               )}
@@ -1146,7 +1164,7 @@ function ProductDetails() {
 
               {/* PRICE */}
 
-              <div className="mt-8 rounded-[1.5rem] border border-[#dfe6dc] bg-[#f7f9f5] p-5">
+              <div className="mt-8 rounded-[1.5rem] border border-[#dfe6dc] bg-[#EFE8E2] p-5">
 
                 <div className="flex flex-wrap items-end justify-between gap-5">
 
@@ -1256,7 +1274,7 @@ function ProductDetails() {
 
               {/* STOCK */}
 
-              <div className="mt-7 rounded-2xl border border-[#dfe6dc] bg-[#f7f9f5] p-4">
+              <div className="mt-7 rounded-2xl border border-[#dfe6dc] bg-[#EFE8E2] p-4">
 
                 <div className="flex items-center gap-2">
 
@@ -1294,7 +1312,7 @@ function ProductDetails() {
                 <p className="mt-1 text-xs font-bold text-[#8b9588]">
 
                   {isOutOfStock
-                    ? "سيظهر التوفر من لوحة الإدارة عند تحديث المخزون."
+                    ? "سيظهر التوفر من إدارة المتجر عند تحديث المخزون."
                     : `${stock} قطعة متاحة`}
 
                 </p>
@@ -1323,7 +1341,7 @@ function ProductDetails() {
                         quantity <=
                         1
                       }
-                      className="flex h-12 w-12 items-center justify-center text-[#5d695a] transition hover:bg-[#eef2eb] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex h-12 w-12 items-center justify-center text-[#5d695a] transition hover:bg-[#EFE8E2] disabled:cursor-not-allowed disabled:opacity-40"
                     >
 
                       <Minus
@@ -1351,7 +1369,7 @@ function ProductDetails() {
                         quantity >=
                         maxQuantity
                       }
-                      className="flex h-12 w-12 items-center justify-center text-[#5d695a] transition hover:bg-[#eef2eb] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="flex h-12 w-12 items-center justify-center text-[#5d695a] transition hover:bg-[#EFE8E2] disabled:cursor-not-allowed disabled:opacity-40"
                     >
 
                       <Plus
@@ -1386,7 +1404,7 @@ function ProductDetails() {
                   className={`flex items-center justify-center gap-2 rounded-xl py-4 text-sm font-black transition ${
                     isOutOfStock
                       ? "cursor-not-allowed bg-[#e4e8e1] text-[#969f94]"
-                      : "bg-[#2f382c] text-white hover:bg-[#3c4838]"
+                      : "bg-[#B4C4AD] text-white hover:bg-[#9ead97]"
                   }`}
                 >
 
@@ -1424,7 +1442,7 @@ ${product.name}
                     )}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-xl border border-[#cfdacb] bg-[#eef2eb] py-4 text-sm font-black text-[#4e5b4b] transition hover:bg-[#e4ece0]"
+                    className="flex items-center justify-center gap-2 rounded-xl border border-[#cfdacb] bg-[#EFE8E2] py-4 text-sm font-black text-[#4e5b4b] transition hover:bg-[#e4ece0]"
                   >
 
                     <MessageCircle
@@ -1452,6 +1470,15 @@ ${product.name}
 
               </div>
 
+              <button
+                type="button"
+                onClick={handleShare}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#dfe6dc] bg-white py-3.5 text-sm font-black text-[#596555] transition hover:border-[#c8d4c4] hover:bg-[#f4f7f2]"
+              >
+                <Share2 size={18} />
+                {t("مشاركة المنتج")}
+              </button>
+
 
               {/* TRUST */}
 
@@ -1462,7 +1489,7 @@ ${product.name}
                     Check
                   }
                   title="منتج منشور"
-                  text="من لوحة الإدارة"
+                  text="من إدارة المتجر"
                 />
 
 
@@ -1748,7 +1775,7 @@ ${product.name}
           ) : (
             <div className="mt-8 rounded-[1.75rem] border border-dashed border-[#d5ded1] bg-white px-6 py-12 text-center">
 
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef2eb] text-[#657361]">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFE8E2] text-[#657361]">
 
                 <Star
                   size={
@@ -1765,7 +1792,7 @@ ${product.name}
 
 
               <p className="mx-auto mt-1 max-w-md text-xs leading-6 text-[#8a9487]">
-                ستظهر هنا تقييمات العملاء بعد مراجعتها واعتمادها من لوحة الإدارة.
+                ستظهر هنا تقييمات العملاء بعد مراجعتها واعتمادها من إدارة المتجر.
               </p>
 
             </div>
@@ -1857,7 +1884,7 @@ function TrustItem({
 
       <div className="flex items-center gap-3">
 
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2eb] text-[#60705b]">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EFE8E2] text-[#60705b]">
 
           <Icon
             size={16}
@@ -1900,7 +1927,7 @@ function SpecRow({
   danger = false,
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-[#edf0eb] pb-4 last:border-0 last:pb-0">
+    <div className="flex items-center justify-between gap-4 border-b border-[#EFE8E2] pb-4 last:border-0 last:pb-0">
 
       <span className="text-sm font-black text-[#30382e]">
         {

@@ -1,3 +1,6 @@
+import { resolveMediaUrl } from "../utils/mediaUrl";
+import { registerCatalogTranslation } from "../context/LanguageContext";
+
 const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL ||
   "/api"
@@ -102,12 +105,12 @@ function normalizeImage(
     typeof image ===
     "string"
   ) {
-    return image;
+    return resolveMediaUrl(image);
   }
 
 
   return (
-    image?.url ||
+    resolveMediaUrl(image?.url) ||
     null
   );
 }
@@ -120,6 +123,9 @@ function normalizeImage(
 function normalizeProduct(
   product
 ) {
+  registerCatalogTranslation(product?.name, product?.nameEn);
+  registerCatalogTranslation(product?.description, product?.descriptionEn);
+  registerCatalogTranslation(product?.category, product?.categoryEn);
   if (!product) {
     return null;
   }

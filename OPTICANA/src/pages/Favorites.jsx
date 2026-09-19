@@ -109,7 +109,7 @@ function Favorites() {
 
     /*
      * تحديث الصفحة عندما تتغير
-     * بيانات Admin في نفس المتصفح.
+     * بيانات Store Management في نفس المتصفح.
      */
     const handleStorage = () => {
       loadProducts();
@@ -212,7 +212,7 @@ function Favorites() {
 
             <div className="h-10 w-56 animate-pulse rounded-full bg-[#e7ece4]" />
 
-            <div className="h-4 w-72 max-w-full animate-pulse rounded-full bg-[#eef2eb]" />
+            <div className="h-4 w-72 max-w-full animate-pulse rounded-full bg-[#EFE8E2]" />
 
           </div>
 
@@ -253,7 +253,7 @@ function Favorites() {
 
             <div className="mt-2 flex items-center gap-3">
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2eb] text-[#657361]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#657361]">
 
                 <Heart
                   size={23}
@@ -275,7 +275,7 @@ function Favorites() {
 
           <div className="rounded-[2rem] border border-[#dfe6dc] bg-white p-8 text-center shadow-sm sm:p-12">
 
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#eef2eb] text-[#71806d]">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EFE8E2] text-[#71806d]">
 
               <Heart
                 size={30}
@@ -292,7 +292,7 @@ function Favorites() {
 
             <Link
               to="/products"
-              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-[#2f382c] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3c4838]"
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3 text-sm font-black text-white transition hover:bg-[#9ead97]"
             >
 
               تصفح المنتجات
@@ -337,7 +337,7 @@ function Favorites() {
 
             <div className="mt-2 flex items-center gap-3">
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef2eb] text-[#657361]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#657361]">
 
                 <Heart
                   size={23}
@@ -374,7 +374,7 @@ function Favorites() {
 
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 rounded-xl border border-[#cfdacb] bg-white px-5 py-3 text-sm font-black text-[#4f5d4c] transition hover:border-[#B4C4AD] hover:bg-[#eef2eb]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#cfdacb] bg-white px-5 py-3 text-sm font-black text-[#4f5d4c] transition hover:border-[#B4C4AD] hover:bg-[#EFE8E2]"
           >
 
             متابعة التسوق
@@ -425,7 +425,7 @@ function Favorites() {
 
 
           <p className="text-xs leading-6 text-[#7d8779]">
-            المفضلة تعرض فقط المنتجات الموجودة حاليًا في بيانات المتجر القادمة من لوحة الإدارة.
+            المفضلة تعرض فقط المنتجات الموجودة حاليًا في بيانات المتجر القادمة من إدارة المتجر.
           </p>
 
         </div>

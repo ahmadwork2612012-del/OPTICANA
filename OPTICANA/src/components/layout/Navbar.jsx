@@ -21,6 +21,7 @@ import useCartStore from "../../store/cartStore";
 import useFavoriteStore from "../../store/favoriteStore";
 import SearchDrawer from "../ui/SearchDrawer";
 import useSearchStore from "../../store/searchStore";
+import { useLanguage } from "../../context/LanguageContext";
 
 import {
   getStoreInfo,
@@ -39,7 +40,7 @@ function CountBadge({
   }
 
   return (
-    <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#2f382c] px-1 text-[10px] font-black text-white shadow-sm">
+    <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B4C4AD] px-1 text-[10px] font-black text-white shadow-sm">
       {count > 99
         ? "99+"
         : count}
@@ -53,6 +54,7 @@ function CountBadge({
 ===================================== */
 
 function Navbar() {
+  const { language, toggleLanguage } = useLanguage();
   const {
     filters,
     setFilters,
@@ -169,7 +171,7 @@ function Navbar() {
 
   const logo =
     store?.logo ||
-    null;
+    "/opticana-logo.png";
 
 
   const whatsapp =
@@ -255,23 +257,13 @@ function Navbar() {
             className="group flex min-w-fit items-center gap-3"
           >
 
-            {logo ? (
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-[#dfe6dc]">
-                <img
-                  src={
-                    logo
-                  }
-                  alt={
-                    storeName
-                  }
-                  className="h-full w-full object-contain p-1.5"
-                />
-              </div>
-            ) : (
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#B4C4AD] text-lg font-black text-[#263024]">
-                O
-              </div>
-            )}
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-[#d8ddd4]">
+              <img
+                src={logo}
+                alt={storeName}
+                className="h-full w-full object-contain p-1"
+              />
+            </div>
 
 
             <div className="hidden flex-col items-start sm:flex">
@@ -354,6 +346,17 @@ function Navbar() {
 
           <div className="flex items-center gap-2">
 
+            {/* LANGUAGE */}
+
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"}
+              title={language === "ar" ? "Switch to English" : "التبديل إلى العربية"}
+              className="inline-flex h-10 min-w-10 items-center justify-center rounded-xl border border-[#dfe5dc] bg-white px-3 text-[11px] font-black text-[#52604e] transition hover:border-[#B4C4AD] hover:bg-[#EFE8E2] hover:text-[#3f4d3b]"
+            >
+              {language === "ar" ? "English" : "العربية"}
+            </button>
 
             {/* SEARCH */}
 
@@ -364,7 +367,7 @@ function Navbar() {
               }
               aria-label="البحث"
               title="البحث"
-              className="hidden h-10 w-10 items-center justify-center rounded-xl border border-[#dfe5dc] bg-white text-[#626c60] transition hover:border-[#B4C4AD] hover:bg-[#f0f4ed] hover:text-[#3f4d3b] md:flex"
+              className="hidden h-10 w-10 items-center justify-center rounded-xl border border-[#dfe5dc] bg-white text-[#626c60] transition hover:border-[#B4C4AD] hover:bg-[#EFE8E2] hover:text-[#3f4d3b] md:flex"
             >
               <Search
                 size={18}
@@ -378,7 +381,7 @@ function Navbar() {
               to="/favorites"
               aria-label="المفضلة"
               title="المفضلة"
-              className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-[#dfe5dc] bg-white text-[#626c60] transition hover:border-[#B4C4AD] hover:bg-[#f0f4ed] hover:text-[#3f4d3b] md:flex"
+              className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-[#dfe5dc] bg-white text-[#626c60] transition hover:border-[#B4C4AD] hover:bg-[#EFE8E2] hover:text-[#3f4d3b] md:flex"
             >
 
               <Heart
@@ -400,7 +403,7 @@ function Navbar() {
               to="/cart"
               aria-label="السلة"
               title="السلة"
-              className="relative hidden h-10 w-10 items-center justify-center rounded-xl bg-[#2f382c] text-white transition hover:bg-[#3c4838] md:flex"
+              className="relative hidden h-10 w-10 items-center justify-center rounded-xl bg-[#B4C4AD] text-white transition hover:bg-[#9ead97] md:flex"
             >
 
               <ShoppingCart
@@ -425,7 +428,7 @@ function Navbar() {
                 rel="noreferrer"
                 aria-label="واتساب"
                 title="واتساب"
-                className="hidden h-10 items-center gap-2 rounded-xl border border-[#d8e1d4] bg-[#f0f4ed] px-3.5 text-xs font-black text-[#52604e] transition hover:border-[#B4C4AD] hover:bg-[#e7eee4] sm:flex"
+                className="hidden h-10 items-center gap-2 rounded-xl border border-[#d8e1d4] bg-[#EFE8E2] px-3.5 text-xs font-black text-[#52604e] transition hover:border-[#B4C4AD] hover:bg-[#e7eee4] sm:flex"
               >
 
                 <MessageCircle
@@ -466,7 +469,7 @@ function Navbar() {
               }
               aria-label="فتح القائمة"
               title="القائمة"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dfe5dc] bg-white text-[#5f6b5c] transition hover:border-[#B4C4AD] hover:bg-[#f0f4ed] md:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dfe5dc] bg-white text-[#5f6b5c] transition hover:border-[#B4C4AD] hover:bg-[#EFE8E2] md:hidden"
             >
 
               <Menu
@@ -563,7 +566,7 @@ function Navbar() {
                   closeMobile
                 }
                 aria-label="إغلاق القائمة"
-                className="rounded-xl p-2 text-[#697366] hover:bg-[#eef2eb]"
+                className="rounded-xl p-2 text-[#697366] hover:bg-[#EFE8E2]"
               >
 
                 <X
@@ -602,8 +605,8 @@ function Navbar() {
                     }) =>
                       `rounded-xl px-4 py-3.5 text-base font-black transition ${
                         isActive
-                          ? "bg-[#2f382c] text-white"
-                          : "text-[#4e5a4b] hover:bg-[#eef2eb]"
+                          ? "bg-[#B4C4AD] text-white"
+                          : "text-[#4e5a4b] hover:bg-[#EFE8E2]"
                       }`
                     }
                   >
@@ -680,7 +683,7 @@ function Navbar() {
                   onClick={
                     closeMobile
                   }
-                  className="relative flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#2f382c] py-3 text-white"
+                  className="relative flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#B4C4AD] py-3 text-white"
                 >
 
                   <ShoppingCart

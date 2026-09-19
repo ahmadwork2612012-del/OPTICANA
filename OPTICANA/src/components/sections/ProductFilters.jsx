@@ -93,7 +93,7 @@ function ProductFilters({
             onClick={
               openSearch
             }
-            className="flex items-center gap-2 rounded-xl bg-[#2f382c] px-5 py-3 text-sm font-black text-white transition hover:bg-[#3c4838]"
+            className="flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3 text-sm font-black text-white transition hover:bg-[#9ead97]"
           >
             <SlidersHorizontal
               size={17}
@@ -285,7 +285,7 @@ function FilterChip({
       onClick={
         onClear
       }
-      className="flex items-center gap-2 rounded-full border border-[#d9e2d5] bg-[#f0f4ed] px-4 py-2 text-sm font-bold text-[#53604f] transition hover:bg-[#e8eee4]"
+      className="flex items-center gap-2 rounded-full border border-[#d9e2d5] bg-[#EFE8E2] px-4 py-2 text-sm font-bold text-[#53604f] transition hover:bg-[#e8eee4]"
     >
       {label}
 

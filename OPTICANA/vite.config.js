@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "VITE_");
   const apiTarget = env.VITE_DEV_API_TARGET || "http://localhost:4000";
 
@@ -12,6 +12,10 @@ export default defineConfig(({ command, mode }) => {
     server: {
       proxy: {
         "/api": {
+          target: apiTarget,
+          changeOrigin: true,
+        },
+        "/uploads": {
           target: apiTarget,
           changeOrigin: true,
         },

@@ -4,7 +4,7 @@ function ProductSkeleton() {
 
       {/* IMAGE */}
 
-      <div className="h-44 animate-pulse bg-[#eef2eb] sm:h-72" />
+      <div className="h-44 animate-pulse bg-[#EFE8E2] sm:h-72" />
 
 
       {/* CONTENT */}

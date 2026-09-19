@@ -166,35 +166,35 @@ function About() {
       : [
           {
             id:
-              "placeholder-quality",
+              "feature-quality",
             title:
               "جودة موثوقة",
             description:
-              "أضف وصف هذه الميزة من لوحة إدارة المتجر.",
+              "نختار المنتجات بعناية ونركز على الجودة في كل تفصيل.",
           },
           {
             id:
-              "placeholder-service",
+              "feature-service",
             title:
               "خدمة مميزة",
             description:
-              "أضف وصف هذه الميزة من لوحة إدارة المتجر.",
+              "نهتم بسرعة الاستجابة ووضوح المعلومات قبل الشراء وبعده.",
           },
           {
             id:
-              "placeholder-variety",
+              "feature-variety",
             title:
               "تنوع المنتجات",
             description:
-              "أضف وصف هذه الميزة من لوحة إدارة المتجر.",
+              "نوفر خيارات متنوعة تساعدك على الوصول لما يناسب احتياجك.",
           },
           {
             id:
-              "placeholder-support",
+              "feature-support",
             title:
               "دعم مستمر",
             description:
-              "أضف وصف هذه الميزة من لوحة إدارة المتجر.",
+              "نقدم مساعدة واضحة واحترافية عندما تحتاجها.",
           },
         ];
 
@@ -208,35 +208,35 @@ function About() {
       : [
           {
             id:
-              "placeholder-stat-1",
+              "stat-1",
             value:
               "—",
             label:
-              "إحصائية المتجر",
+              "بيانات غير متاحة بعد",
           },
           {
             id:
-              "placeholder-stat-2",
+              "stat-2",
             value:
               "—",
             label:
-              "إحصائية المتجر",
+              "بيانات غير متاحة بعد",
           },
           {
             id:
-              "placeholder-stat-3",
+              "stat-3",
             value:
               "—",
             label:
-              "إحصائية المتجر",
+              "بيانات غير متاحة بعد",
           },
           {
             id:
-              "placeholder-stat-4",
+              "stat-4",
             value:
               "—",
             label:
-              "إحصائية المتجر",
+              "بيانات غير متاحة بعد",
           },
         ];
 
@@ -288,7 +288,7 @@ function About() {
 
             <div className="max-w-2xl">
 
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#eef2eb] px-4 py-2 text-xs font-black text-[#596655]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#596655]">
 
                 <Sparkles
                   size={14}
@@ -313,7 +313,7 @@ function About() {
 
                 <Link
                   to="/products"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#2f382c] px-6 py-3.5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#3c4838]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-6 py-3.5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#9ead97]"
                 >
                   اكتشف منتجاتنا
 
@@ -360,7 +360,7 @@ function About() {
               <div className="absolute -inset-5 rounded-[3rem] bg-[#dce6d8]/70 blur-2xl" />
 
 
-              <div className="relative aspect-[0.95] overflow-hidden rounded-[2.7rem] border border-white bg-[#eef2eb] shadow-2xl">
+              <div className="relative aspect-[0.95] overflow-hidden rounded-[2.7rem] border border-white bg-[#EFE8E2] shadow-2xl">
 
                 {image ? (
                   <img
@@ -373,7 +373,7 @@ function About() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-[#eef2eb] via-white to-[#dfe8db] p-10 text-center">
+                  <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10 text-center">
 
                     <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#B4C4AD] text-3xl font-black text-[#283226]">
                       O
@@ -388,7 +388,7 @@ function About() {
 
 
                     <p className="mt-2 text-sm font-bold text-[#788374]">
-                      أضف صورة قسم "من نحن" من لوحة الإدارة
+                      أضف صورة قسم "من نحن" من إدارة المتجر
                     </p>
 
                   </div>
@@ -467,7 +467,7 @@ function About() {
             </h2>
 
             <p className="mt-3 text-sm leading-7 text-[#7d8879]">
-              هذه المزايا يتم التحكم بها بالكامل من لوحة إدارة المتجر.
+              هذه المزايا يتم التحكم بها بالكامل من إدارة المتجر.
             </p>
 
           </div>
@@ -515,7 +515,7 @@ function About() {
 
         <div className="mx-auto max-w-7xl px-6">
 
-          <div className="rounded-[2rem] bg-[#2f382c] p-7 text-white sm:p-10">
+          <div className="rounded-[2rem] bg-[#B4C4AD] p-7 text-white sm:p-10">
 
             <div className="mb-8">
 
@@ -530,7 +530,7 @@ function About() {
 
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">
                 {about.statsDescription ||
-                  "إحصائيات المتجر قابلة للتحديث من لوحة الإدارة."}
+                  "إحصائيات المتجر قابلة للتحديث من إدارة المتجر."}
               </p>
 
             </div>
@@ -603,7 +603,7 @@ function About() {
 
       <section className="mx-auto max-w-7xl px-6 pb-24">
 
-        <div className="relative overflow-hidden rounded-[2.5rem] border border-[#dce5d8] bg-[#eef2eb] p-8 sm:p-12">
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-[#dce5d8] bg-[#EFE8E2] p-8 sm:p-12">
 
           <div className="absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[#B4C4AD]/50 blur-3xl" />
 
@@ -644,7 +644,7 @@ function About() {
                 about.ctaLink ||
                 "/products"
               }
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#2f382c] px-6 py-3.5 text-sm font-black text-white transition hover:bg-[#3c4838]"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#B4C4AD] px-6 py-3.5 text-sm font-black text-white transition hover:bg-[#9ead97]"
             >
               {
                 about.ctaButtonText ||
@@ -695,7 +695,7 @@ function InfoCard({
       className="rounded-[2rem] border border-[#dfe6dc] bg-white p-7 shadow-sm sm:p-9"
     >
 
-      <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-[#eef2eb] text-[#657361]">
+      <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-[#EFE8E2] text-[#657361]">
 
         <Icon
           size={24}
@@ -794,7 +794,7 @@ function FeatureCard({
       <p className="mt-2 text-xs leading-6 text-[#808a7d] sm:text-sm">
         {
           feature.description ||
-          "يمكن إضافة وصف هذه الميزة من لوحة الإدارة."
+          "يمكن إضافة وصف هذه الميزة من إدارة المتجر."
         }
       </p>
 

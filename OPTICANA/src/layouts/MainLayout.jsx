@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
@@ -16,6 +17,9 @@ import {
 function MainLayout({
   children,
 }) {
+  const location = useLocation();
+  const isManagerRoute = location.pathname.replace(/\/$/, "").endsWith("/manage");
+
   const [
     maintenance,
     setMaintenance,
@@ -25,6 +29,8 @@ function MainLayout({
     loading,
     setLoading,
   ] = useState(true);
+
+  const [storeEnabled, setStoreEnabled] = useState(true);
 
 
   useEffect(() => {
@@ -45,6 +51,7 @@ function MainLayout({
               enabled: false,
             }
         );
+        setStoreEnabled(store?.storeEnabled !== false);
       } catch (error) {
         console.error(
           "MainLayout:",
@@ -71,6 +78,12 @@ function MainLayout({
       mounted = false;
     };
   }, []);
+
+  // Keep hooks unconditional: the manager route can be entered and left without
+  // remounting this layout. Returning before hooks made that transition unsafe.
+  if (isManagerRoute) {
+    return children;
+  }
 
 
   /* =====================================
@@ -100,12 +113,8 @@ function MainLayout({
      MAINTENANCE MODE
   ===================================== */
 
-  if (
-    maintenance?.enabled
-  ) {
-    return (
-      <Maintenance />
-    );
+  if (!storeEnabled || maintenance?.enabled) {
+    return <Maintenance />;
   }
 
 

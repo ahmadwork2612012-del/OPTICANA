@@ -43,7 +43,7 @@ function NotFound() {
 
           {/* ICON */}
 
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-[#eef2eb] text-[#657361] shadow-sm">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-[#EFE8E2] text-[#657361] shadow-sm">
 
             <SearchX
               size={36}
@@ -75,7 +75,7 @@ function NotFound() {
 
             <Link
               to="/"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#2f382c] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-[#2f382c]/10 transition hover:-translate-y-0.5 hover:bg-[#3c4838]"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-[#B4C4AD]/10 transition hover:-translate-y-0.5 hover:bg-[#9ead97]"
             >
               <Home
                 size={18}

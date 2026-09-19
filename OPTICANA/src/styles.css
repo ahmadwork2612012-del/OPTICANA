@@ -8,8 +8,32 @@ html {
 body {
   margin: 0;
   font-family: "Cairo", sans-serif;
-  background: #ffffff;
+  background: #EFE8E2;
   color: #111827;
+}
+
+/* The visual system uses sage as the primary accent and off-white for quiet
+   surfaces. Native controls inherit a visible, accessible focus treatment. */
+:root {
+  --brand-primary: #B4C4AD;
+  --brand-primary-hover: #9ead97;
+  --brand-surface: #EFE8E2;
+  --brand-ink: #20251f;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand-primary) 80%, white);
+  outline-offset: 3px;
+}
+
+/* Tailwind utilities keep the existing component structure intact while the
+   new sage primary needs an ink foreground for accessible contrast. */
+[class*="bg-[#B4C4AD]"].text-white {
+  color: var(--brand-ink) !important;
+}
+
+[class*="bg-[#B4C4AD]"] .text-white {
+  color: var(--brand-ink) !important;
 }
 @keyframes badge-pop {
   0% {

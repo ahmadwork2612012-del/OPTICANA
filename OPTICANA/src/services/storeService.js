@@ -1,3 +1,4 @@
+import { resolveMediaUrl } from "../utils/mediaUrl";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -33,6 +34,15 @@ const DEFAULT_CONTENT = {
   seo:{title:"OPTICANA | عيونك أحلى معانا",description:"",keywords:"",socialImage:null},banners:[],
 };
 
+function normalizeMediaDeep(value) {
+  if (typeof value === "string") return resolveMediaUrl(value);
+  if (Array.isArray(value)) return value.map(normalizeMediaDeep);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, normalizeMediaDeep(child)]));
+  }
+  return value;
+}
+
 function mergeDeep(base, source) {
   if (!source || typeof source !== "object" || Array.isArray(source)) return source;
   const result={...(base||{})};
@@ -47,11 +57,11 @@ function mergeDeep(base, source) {
 
 export async function getStoreContent() {
   const content = await apiGet("/content");
-  return mergeDeep(DEFAULT_CONTENT, content || {});
+  return normalizeMediaDeep(mergeDeep(DEFAULT_CONTENT, content || {}));
 }
 
 export async function getStoreSettings() {
-  return (await apiGet("/settings")) || {};
+  return normalizeMediaDeep((await apiGet("/settings")) || {});
 }
 
 export async function getStoreInfo() {
@@ -68,8 +78,10 @@ export async function getStoreInfo() {
   return {
     name: general.storeName || business.storeName || "OPTICANA",
     slogan: general.slogan || business.slogan || "عيونك أحلى معانا",
-    logo: appearance.logo || general.logo || business.logo || null,
-    favicon: appearance.favicon || general.favicon || business.favicon || null,
+    // Admin-managed branding keeps priority. These bundled assets are only the
+    // resilient brand fallback used before a manager uploads their own media.
+    logo: resolveMediaUrl(appearance.logo || general.logo || business.logo || null) || "/opticana-logo.png",
+    favicon: resolveMediaUrl(appearance.favicon || general.favicon || business.favicon || null) || "/opticana-icon.png",
     phone: contact.phone || general.phone || business.phone || "",
     whatsapp: contact.whatsapp || general.whatsapp || business.whatsapp || "",
     email: contact.email || general.email || business.email || "",
@@ -85,10 +97,21 @@ export async function getStoreInfo() {
     seoTitle: seo.title || "OPTICANA | عيونك أحلى معانا",
     seoDescription: seo.description || "",
     seoKeywords: seo.keywords || "",
-    socialImage: seo.socialImage || null,
+    socialImage: resolveMediaUrl(seo.socialImage || null),
     footerDescription: footer.description || "",
     footerLinks: Array.isArray(footer.quickLinks) ? footer.quickLinks.filter(x=>x?.enabled!==false) : [],
-    maintenance: content.maintenance || DEFAULT_CONTENT.maintenance,
+    maintenance: {
+      ...DEFAULT_CONTENT.maintenance,
+      ...(content.maintenance || {}),
+      // The operational switch lives in Settings; CMS owns the copy/text.
+      enabled: settings.store?.maintenanceMode === true || content.maintenance?.enabled === true,
+    },
+    storeEnabled: settings.store?.enabled !== false,
+    showPrices: settings.store?.showPrices !== false,
+    allowGuestCheckout: settings.store?.allowGuestCheckout !== false,
+    requirePhone: settings.store?.requirePhone !== false,
+    allowReviews: settings.store?.allowReviews !== false,
+    allowFavorites: settings.store?.allowFavorites !== false,
   };
 }
 

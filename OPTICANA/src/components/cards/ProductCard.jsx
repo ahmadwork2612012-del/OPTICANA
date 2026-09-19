@@ -531,7 +531,7 @@ function ProductCard({
 
         /*
          * نخليه يظهر فورًا على الكارد
-         * بدون انتظار موافقة Admin.
+         * بدون انتظار موافقة Store management.
          *
          * بعد إعادة تحميل الصفحة سيأخذ
          * القيمة المعتمدة من reviewService.
@@ -680,7 +680,7 @@ function ProductCard({
 
           {discount >
             0 && (
-            <span className="absolute left-2.5 top-2.5 z-10 rounded-full bg-[#2f382c] px-2 py-1 text-[9px] font-black text-white shadow-sm sm:left-4 sm:top-4 sm:px-3 sm:py-1.5 sm:text-xs">
+            <span className="absolute left-2.5 top-2.5 z-10 rounded-full bg-[#B4C4AD] px-2 py-1 text-[9px] font-black text-white shadow-sm sm:left-4 sm:top-4 sm:px-3 sm:py-1.5 sm:text-xs">
               خصم{" "}
               {discount}%
             </span>
@@ -1008,7 +1008,7 @@ function ProductCard({
               className={`flex min-w-0 flex-1 items-center justify-center gap-1 rounded-lg py-2.5 text-[10px] font-black transition sm:gap-2 sm:rounded-xl sm:py-3 sm:text-sm ${
                 isOutOfStock
                   ? "cursor-not-allowed bg-[#e7e9e5] text-[#9aa19a]"
-                  : "bg-[#2f382c] text-white hover:bg-[#3c4838]"
+                  : "bg-[#B4C4AD] text-white hover:bg-[#9ead97]"
               }`}
             >
 
@@ -1158,7 +1158,7 @@ function ProductCard({
                 )
               }
               placeholder="اكتب ملاحظتك عن المنتج..."
-              className="mt-6 h-28 w-full resize-none rounded-2xl border border-[#dfe6dc] p-4 text-sm outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#eef2eb]"
+              className="mt-6 h-28 w-full resize-none rounded-2xl border border-[#dfe6dc] p-4 text-sm outline-none transition focus:border-[#B4C4AD] focus:ring-4 focus:ring-[#EFE8E2]"
             />
 
 
@@ -1171,7 +1171,7 @@ function ProductCard({
                 onClick={
                   closeRating
                 }
-                className="flex-1 rounded-xl border border-[#d9e1d6] bg-[#f8faf7] py-3.5 font-black text-[#667263] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c6d2c2] hover:bg-[#eef2eb] hover:text-[#4f5d4b] hover:shadow-md active:translate-y-0"
+                className="flex-1 rounded-xl border border-[#d9e1d6] bg-[#f8faf7] py-3.5 font-black text-[#667263] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#c6d2c2] hover:bg-[#EFE8E2] hover:text-[#4f5d4b] hover:shadow-md active:translate-y-0"
               >
 
                 إلغاء
@@ -1188,7 +1188,7 @@ function ProductCard({
                   selectedRating ===
                   0
                 }
-                className="flex-1 rounded-xl bg-[#2f382c] py-3 font-bold text-white transition hover:bg-[#3c4838] disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex-1 rounded-xl bg-[#B4C4AD] py-3 font-bold text-white transition hover:bg-[#9ead97] disabled:cursor-not-allowed disabled:opacity-50"
               >
 
                 إرسال التقييم

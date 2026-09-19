@@ -137,7 +137,7 @@ function Maintenance() {
                 VISUAL
             ================================= */}
 
-            <div className="relative min-h-[300px] overflow-hidden bg-[#eef2eb] lg:min-h-full">
+            <div className="relative min-h-[300px] overflow-hidden bg-[#EFE8E2] lg:min-h-full">
 
               {image ? (
                 <img
@@ -148,7 +148,7 @@ function Maintenance() {
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full min-h-[300px] items-center justify-center bg-gradient-to-br from-[#eef2eb] via-white to-[#dfe8db] p-10 lg:min-h-[600px]">
+                <div className="flex h-full min-h-[300px] items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10 lg:min-h-[600px]">
 
                   {logo ? (
                     <img
@@ -216,7 +216,7 @@ function Maintenance() {
 
               {/* ICON */}
 
-              <div className="mt-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef2eb] text-[#657361]">
+              <div className="mt-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFE8E2] text-[#657361]">
 
                 <Clock
                   size={27}
@@ -248,7 +248,7 @@ function Maintenance() {
                     href={`https://wa.me/${whatsapp}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#2f382c] px-5 py-3.5 text-sm font-black text-white transition hover:bg-[#3c4838]"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3.5 text-sm font-black text-white transition hover:bg-[#9ead97]"
                   >
                     <MessageCircle
                       size={18}
@@ -266,7 +266,7 @@ function Maintenance() {
                     href={
                       contactButtonLink
                     }
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#2f382c] px-5 py-3.5 text-sm font-black text-white transition hover:bg-[#3c4838]"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3.5 text-sm font-black text-white transition hover:bg-[#9ead97]"
                   >
                     {contactButtonText}
                   </a>

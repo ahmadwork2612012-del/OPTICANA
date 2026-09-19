@@ -20,9 +20,11 @@ import {
 } from "../../services/storeService";
 
 import Loading from "../ui/Loading";
+import { useLanguage } from "../../context/LanguageContext";
 
 
 function Footer() {
+  const { t } = useLanguage();
   const [
     store,
     setStore,
@@ -467,9 +469,17 @@ function Footer() {
           </p>
 
 
-          <p className="text-[#6f786d]">
-            {slogan}
-          </p>
+          <div className="flex items-center justify-center gap-4 sm:justify-end">
+            <Link
+              to="/manage"
+              className="text-[10px] font-black text-[#5f695c] transition hover:text-[#B4C4AD]"
+            >
+              {t("إدارة المتجر")}
+            </Link>
+            <p className="text-[#6f786d]">
+              {slogan}
+            </p>
+          </div>
 
         </div>
 

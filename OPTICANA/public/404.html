@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      const redirect = window.location.pathname + window.location.search + window.location.hash;
+      const base = "/" + window.location.pathname.split("/").filter(Boolean)[0] + "/";
+      window.location.replace(base + "?redirect=" + encodeURIComponent(redirect));
+    </script>
+  </head>
+  <body></body>
+</html>

@@ -361,7 +361,7 @@ function Home() {
       ===================================== */}
 
       {announcement.enabled && (
-        <div className="border-b border-[#dce4d8] bg-[#eef2eb]">
+        <div className="border-b border-[#dce4d8] bg-[#EFE8E2]">
 
           <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-6 py-2.5 text-center text-xs font-black text-[#566352] sm:text-sm">
 
@@ -415,7 +415,13 @@ function Home() {
 
               <div className="max-w-2xl">
 
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#d6e0d2] bg-[#eef2eb] px-4 py-2 text-xs font-black text-[#596755]">
+                <img
+                  src={store?.logo || "/opticana-logo.png"}
+                  alt={store?.name || "OPTICANA"}
+                  className="mb-5 h-14 w-auto max-w-[190px] object-contain object-right"
+                />
+
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#d6e0d2] bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#596755]">
 
                   <Sparkles
                     size={14}
@@ -454,7 +460,7 @@ function Home() {
                           .link ||
                         "/products"
                       }
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#2f382c] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-[#2f382c]/10 transition duration-300 hover:-translate-y-0.5 hover:bg-[#3c4838] hover:shadow-xl"
+                      className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-[#B4C4AD]/10 transition duration-300 hover:-translate-y-0.5 hover:bg-[#9ead97] hover:shadow-xl"
                     >
                       {
                         hero
@@ -553,7 +559,7 @@ function Home() {
 
                 <div className="absolute -inset-5 rounded-[3rem] bg-[#dce6d8]/70 blur-2xl" />
 
-                <div className="relative overflow-hidden rounded-[2.7rem] border border-white bg-[#eef2eb] shadow-2xl">
+                <div className="relative overflow-hidden rounded-[2.7rem] border border-white bg-[#EFE8E2] shadow-2xl">
 
                   <div className="aspect-[0.92]">
 
@@ -570,7 +576,7 @@ function Home() {
                         className="h-full w-full object-cover transition duration-700 hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#eef2eb] via-white to-[#dfe8db] p-10 text-center">
+                      <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10 text-center">
 
                         <div>
 
@@ -782,7 +788,7 @@ function Home() {
         <ProductSection
           eyebrow="وصل حديثًا"
           title="أحدث المنتجات"
-          description="منتجات جديدة منشورة من لوحة الإدارة."
+          description="منتجات جديدة منشورة من إدارة المتجر."
           products={
             recentProducts
           }
@@ -800,7 +806,7 @@ function Home() {
       {offersConfig.enabled &&
         offers.length >
           0 && (
-          <section className="bg-[#eef2eb] py-20">
+          <section className="bg-[#EFE8E2] py-20">
 
             <div className="mx-auto max-w-7xl px-6">
 
@@ -925,7 +931,7 @@ function Home() {
                           </p>
 
 
-                          <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#edf0eb] pt-4">
+                          <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#EFE8E2] pt-4">
 
                             <div className="min-w-0">
 
@@ -995,7 +1001,7 @@ function Home() {
             ) : (
               <div className="mt-8 rounded-[1.75rem] border border-dashed border-[#d8e1d4] bg-white px-6 py-12 text-center">
 
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef2eb] text-[#657361]">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFE8E2] text-[#657361]">
                   <Star
                     size={25}
                   />
@@ -1048,7 +1054,7 @@ function Home() {
       {cta.enabled && (
         <section className="mx-auto max-w-7xl px-6 pb-24 pt-4">
 
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-[#2f382c] px-7 py-14 text-white sm:px-12 sm:py-16">
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-[#B4C4AD] px-7 py-14 text-white sm:px-12 sm:py-16">
 
             <div className="absolute -left-20 -top-20 h-56 w-56 rounded-full bg-[#B4C4AD]/20 blur-3xl" />
 
