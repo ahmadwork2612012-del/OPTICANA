@@ -1,7 +1,10 @@
+import { compressImage } from "../utils/compressImage";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
 const AUTH_KEY = "opticana-manager-auth";
+// Must match MAX_IMAGE_BYTES in the API's storage service.
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 function getSession() {
   try {
@@ -69,6 +72,52 @@ export function managerLogout() {
 
 export function getManagerSession() {
   return getSession();
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Uploads straight from the browser to R2 using a short-lived signed URL, so
+// the image never goes through the API (Vercel caps request bodies at 4.5 MB).
+// Without R2 configured (local development) it falls back to a data URL that
+// the API stores on its local disk.
+export async function uploadManagerImage(file, folder = "products") {
+  const blob = await compressImage(file);
+  if (blob.size > MAX_UPLOAD_BYTES) {
+    const error = new Error("حجم الصورة كبير جدًا حتى بعد الضغط.");
+    error.code = "MEDIA_TOO_LARGE";
+    throw error;
+  }
+
+  let target;
+  try {
+    target = await request("/admin/media/upload-url", {
+      method: "POST",
+      body: { mimeType: blob.type, size: blob.size, folder },
+    });
+  } catch (error) {
+    if (error.code === "MEDIA_STORAGE_NOT_CONFIGURED") return blobToDataUrl(blob);
+    throw error;
+  }
+
+  const response = await fetch(target.uploadUrl, {
+    method: "PUT",
+    headers: target.headers,
+    body: blob,
+  });
+  if (!response.ok) {
+    const error = new Error("تعذر رفع الصورة، حاول مرة أخرى.");
+    error.status = response.status;
+    error.code = "MEDIA_UPLOAD_FAILED";
+    throw error;
+  }
+  return target.publicUrl;
 }
 
 export async function getManagerProducts() {

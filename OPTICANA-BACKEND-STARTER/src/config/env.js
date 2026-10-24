@@ -11,6 +11,13 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default("http://localhost:5173,http://localhost:5174"),
   MEDIA_STORAGE_DIR: z.string().default("./uploads"),
   MEDIA_BASE_URL: z.string().default("/uploads"),
+  // Cloudflare R2 (S3-compatible). When all are set, media is stored in R2
+  // instead of the local disk, which is read-only on Vercel.
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().optional(),
+  R2_PUBLIC_BASE_URL: z.union([z.string().url(), z.literal("")]).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

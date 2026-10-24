@@ -43,11 +43,13 @@ import {
   updateManagerStoreSetting,
   updateManagerProduct,
   updateManagerReviewStatus,
+  uploadManagerImage,
 } from "../services/managerApi";
 
-// Keep the encoded JSON request safely below the API's 25 MB body limit.
+// Images are compressed in the browser and uploaded directly to storage, so
+// this only guards against unreasonably large source files.
 const MAX_PRODUCT_IMAGES = 4;
-const MAX_IMAGE_SIZE_BYTES = 4 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
 
 const EMPTY_FORM = {
   sku: "",
@@ -108,15 +110,6 @@ function makeStoreForm(data = {}) {
   };
 }
 
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 function Manager() {
   const { t, isEnglish } = useLanguage();
   const [session, setSession] = useState(() => getManagerSession());
@@ -126,6 +119,7 @@ function Manager() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [showForm, setShowForm] = useState(false);
@@ -223,7 +217,7 @@ function Manager() {
   const handleImages = async (files) => {
     const selected = Array.from(files || []);
     if (!selected.length) return;
-    const availableSlots = MAX_PRODUCT_IMAGES - form.images.length;
+    const availableSlots = MAX_PRODUCT_IMAGES - form.images.length - uploadingImages;
     if (availableSlots <= 0) {
       toast.error(isEnglish ? `A product can have up to ${MAX_PRODUCT_IMAGES} images.` : `يمكن إضافة ${MAX_PRODUCT_IMAGES} صور كحد أقصى للمنتج.`);
       return;
@@ -234,14 +228,20 @@ function Manager() {
       return;
     }
     if (nextFiles.some((file) => file.size > MAX_IMAGE_SIZE_BYTES)) {
-      toast.error(isEnglish ? "Each image must be smaller than 4 MB." : "يجب أن يكون حجم كل صورة أقل من 4MB.");
+      toast.error(isEnglish ? "Each image must be smaller than 20 MB." : "يجب أن يكون حجم كل صورة أقل من 20MB.");
       return;
     }
-    try {
-      const encoded = await Promise.all(nextFiles.map(fileToDataUrl));
-      setField("images", [...form.images, ...encoded]);
-    } catch {
-      toast.error(t("تعذر قراءة الصورة."));
+    setUploadingImages((count) => count + nextFiles.length);
+    const results = await Promise.allSettled(nextFiles.map((file) => uploadManagerImage(file, "products")));
+    setUploadingImages((count) => count - nextFiles.length);
+
+    const uploaded = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
+    if (uploaded.length) {
+      setForm((current) => ({ ...current, images: [...current.images, ...uploaded].slice(0, MAX_PRODUCT_IMAGES) }));
+    }
+    const failed = results.find((result) => result.status === "rejected");
+    if (failed) {
+      toast.error(failed.reason?.message || (isEnglish ? "Unable to upload the image." : "تعذر رفع الصورة."));
     }
   };
 
@@ -252,12 +252,14 @@ function Manager() {
   const handleHeroImage = async (file) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) return toast.error(t("اختر صورة صالحة."));
-    if (file.size > MAX_IMAGE_SIZE_BYTES) return toast.error(t("يجب أن يكون حجم كل صورة أقل من 4MB."));
+    if (file.size > MAX_IMAGE_SIZE_BYTES) return toast.error(isEnglish ? "Each image must be smaller than 20 MB." : "يجب أن يكون حجم كل صورة أقل من 20MB.");
+    const uploadToast = toast.loading(isEnglish ? "Uploading image..." : "جاري رفع الصورة...");
     try {
-      const image = await fileToDataUrl(file);
+      const image = await uploadManagerImage(file, "store");
       setStoreForm((current) => ({ ...current, home: { ...current.home, hero: { ...current.home.hero, image } } }));
-    } catch {
-      toast.error(t("تعذر قراءة الصورة."));
+      toast.success(isEnglish ? "Image uploaded" : "تم رفع الصورة", { id: uploadToast });
+    } catch (error) {
+      toast.error(error?.message || t("تعذر قراءة الصورة."), { id: uploadToast });
     }
   };
 
@@ -265,6 +267,7 @@ function Manager() {
     event.preventDefault();
     if (!form.name.trim()) return toast.error(t("اكتب اسم المنتج."));
     if (!form.price || Number(form.price) <= 0) return toast.error(t("أدخل سعرًا صحيحًا."));
+    if (uploadingImages > 0) return toast.error(isEnglish ? "Please wait for the images to finish uploading." : "انتظر حتى يكتمل رفع الصور.");
     if (!form.sku.trim()) setField("sku", makeSku());
 
     setSaving(true);
@@ -629,7 +632,7 @@ function Manager() {
               <div>
                 <Field label={isEnglish ? "Product gallery" : "معرض صور المنتج"}>
                   <div className="space-y-3">
-                    {form.images.length > 0 && (
+                    {(form.images.length > 0 || uploadingImages > 0) && (
                       <div className="grid grid-cols-2 gap-3">
                         {form.images.map((image, index) => (
                           <div key={`${image.slice(0, 30)}-${index}`} className="group relative aspect-square overflow-hidden rounded-2xl border border-[#dfe5dc] bg-white">
@@ -640,13 +643,18 @@ function Manager() {
                             </button>
                           </div>
                         ))}
+                        {Array.from({ length: uploadingImages }, (_, index) => (
+                          <div key={`uploading-${index}`} className="flex aspect-square animate-pulse items-center justify-center rounded-2xl border border-dashed border-[#cfd9cb] bg-[#EFE8E2] text-xs font-black text-[#7b8877]">
+                            {isEnglish ? "Uploading..." : "جاري الرفع..."}
+                          </div>
+                        ))}
                       </div>
                     )}
-                    {form.images.length < MAX_PRODUCT_IMAGES && (
+                    {form.images.length + uploadingImages < MAX_PRODUCT_IMAGES && (
                       <label className="group flex min-h-[140px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[24px] border border-dashed border-[#cfd9cb] bg-[#EFE8E2] text-center transition hover:border-[#aebda8] hover:bg-[#EFE8E2]">
                         <ImagePlus size={30} className="mb-3 text-[#7b8877]" />
                         <span className="text-sm font-black text-[#556151]">{form.images.length ? (isEnglish ? "Add more photos" : "أضف صورًا أخرى") : t("ارفع صورة")}</span>
-                        <span className="mt-1 text-xs text-[#8a9388]">{isEnglish ? `Up to ${MAX_PRODUCT_IMAGES} images · 4 MB each` : `حتى ${MAX_PRODUCT_IMAGES} صور · 4MB للصورة`}</span>
+                        <span className="mt-1 text-xs text-[#8a9388]">{isEnglish ? `Up to ${MAX_PRODUCT_IMAGES} images · compressed automatically` : `حتى ${MAX_PRODUCT_IMAGES} صور · تُضغط تلقائيًا`}</span>
                         <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={(e) => { handleImages(e.target.files); e.target.value = ""; }} />
                       </label>
                     )}
@@ -664,8 +672,8 @@ function Manager() {
                 <button type="button" onClick={() => setShowForm(false)} className="h-12 rounded-2xl border border-[#dfe5dc] bg-white px-5 text-sm font-black text-[#687366]">
                   {t("إلغاء")}
                 </button>
-                <button disabled={saving} type="submit" className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#B4C4AD] px-6 text-sm font-black text-white disabled:opacity-50">
-                  {saving ? t("جاري الحفظ...") : <><Check size={18} /> {editing ? t("حفظ التعديلات") : t("حفظ ونشر")}</>}
+                <button disabled={saving || uploadingImages > 0} type="submit" className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#B4C4AD] px-6 text-sm font-black text-white disabled:opacity-50">
+                  {saving ? t("جاري الحفظ...") : uploadingImages > 0 ? (isEnglish ? "Uploading images..." : "جاري رفع الصور...") :<><Check size={18} /> {editing ? t("حفظ التعديلات") : t("حفظ ونشر")}</>}
                 </button>
               </div>
             </form>
@@ -773,7 +781,7 @@ function Manager() {
               </div>
             </section>
             <section className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7 lg:col-span-2"><h2 className="text-xl font-black">{t("صورة الصفحة الرئيسية")}</h2><p className="mt-1 text-sm text-[#7a8378]">{t("تظهر هذه الصورة في القسم الرئيسي من الصفحة الرئيسية.")}</p><div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto]"><StoreInput label={t("رابط الصورة")} value={storeForm.home.hero.image} onChange={(value) => setStoreForm((f) => ({ ...f, home: { ...f.home, hero: { ...f.home.hero, image: value } } }))} type="url" placeholder="https://..." /><label className="flex h-12 cursor-pointer items-center justify-center rounded-2xl border border-dashed border-[#aebda8] bg-[#EFE8E2] px-5 text-sm font-black text-[#53634f]"><ImagePlus size={17} className="ml-2" />{t("رفع صورة من ملف")}<input type="file" accept="image/*" className="sr-only" onChange={(event) => handleHeroImage(event.target.files?.[0])} /></label></div>{storeForm.home.hero.image && <img src={storeForm.home.hero.image} alt={t("معاينة صورة الصفحة الرئيسية")} className="mt-4 h-40 w-full rounded-2xl object-cover sm:h-56" />}</div>
+              <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7 lg:col-span-2"><h2 className="text-xl font-black">{t("صورة الصفحة الرئيسية")}</h2><p className="mt-1 text-sm text-[#7a8378]">{t("تظهر هذه الصورة في القسم الرئيسي من الصفحة الرئيسية.")}</p><div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto]"><StoreInput label={t("رابط الصورة")} value={storeForm.home.hero.image} onChange={(value) => setStoreForm((f) => ({ ...f, home: { ...f.home, hero: { ...f.home.hero, image: value } } }))} type="url" placeholder="https://..." /><label className="flex h-12 cursor-pointer items-center justify-center rounded-2xl border border-dashed border-[#aebda8] bg-[#EFE8E2] px-5 text-sm font-black text-[#53634f]"><ImagePlus size={17} className="ml-2" />{t("رفع صورة من ملف")}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => handleHeroImage(event.target.files?.[0])} /></label></div>{storeForm.home.hero.image && <img src={storeForm.home.hero.image} alt={t("معاينة صورة الصفحة الرئيسية")} className="mt-4 h-40 w-full rounded-2xl object-cover sm:h-56" />}</div>
               <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7"><h2 className="text-xl font-black">{t("صفحة تواصل معنا")}</h2><div className="mt-5 space-y-4"><StoreInput label={t("العنوان")} value={storeForm.contact.title} onChange={(value) => setStoreForm((f) => ({ ...f, contact: { ...f.contact, title: value } }))} /><StoreTextarea label={t("الوصف")} value={storeForm.contact.description} onChange={(value) => setStoreForm((f) => ({ ...f, contact: { ...f.contact, description: value } }))} /></div></div>
               <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7"><h2 className="text-xl font-black">{t("الفوتر")}</h2><div className="mt-5"><StoreTextarea label={t("وصف الفوتر")} value={storeForm.footer.description} onChange={(value) => setStoreForm((f) => ({ ...f, footer: { ...f.footer, description: value } }))} /></div></div>
               <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7 lg:col-span-2"><h2 className="text-xl font-black">{t("صفحة من نحن")}</h2><div className="mt-5 grid gap-4 sm:grid-cols-2"><StoreInput label={t("العنوان")} value={storeForm.about.title} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, title: value } }))} /><StoreInput label={t("الرؤية")} value={storeForm.about.vision} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, vision: value } }))} /><StoreTextarea label={t("الوصف")} value={storeForm.about.description} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, description: value } }))} /><StoreTextarea label={t("الرسالة")} value={storeForm.about.mission} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, mission: value } }))} /></div></div>

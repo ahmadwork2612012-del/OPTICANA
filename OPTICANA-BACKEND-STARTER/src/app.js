@@ -64,7 +64,8 @@ app.use(
 ===================================== */
 
 /*
-  Media uploads are converted to server-side files by the media service. The JSON limit remains generous for existing product image uploads.
+  Product images are uploaded directly from the browser to R2 storage. The
+  JSON limit only matters for the local-disk fallback used in development.
 */
 
 app.use(

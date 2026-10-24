@@ -1,6 +1,17 @@
 import prisma from "../lib/prisma.js";
 import { changeStock } from "./inventory.service.js";
 import { persistDataUrl } from "./media.service.js";
+import { deleteObjectsByUrl } from "./storage.service.js";
+
+function mediaPathname(url) {
+  const value = String(url || "");
+  if (value.startsWith("/")) return value;
+  try {
+    return new URL(value).pathname;
+  } catch {
+    return value;
+  }
+}
 
 
 /* =====================================
@@ -548,7 +559,7 @@ export async function createProduct(
   } = data;
 
   const storedImages = images?.length
-    ? await Promise.all(images.map(async (image) => ({ ...image, url: await persistDataUrl(image?.url) })))
+    ? await Promise.all(images.map(async (image) => ({ ...image, url: await persistDataUrl(image?.url, "image/jpeg", "products") })))
     : images;
 
 
@@ -666,7 +677,7 @@ export async function updateProduct(
   const storedImages = images === undefined
     ? undefined
     : images?.length
-      ? await Promise.all(images.map(async (image) => ({ ...image, url: await persistDataUrl(image?.url) })))
+      ? await Promise.all(images.map(async (image) => ({ ...image, url: await persistDataUrl(image?.url, "image/jpeg", "products") })))
       : images;
 
 
@@ -681,6 +692,13 @@ export async function updateProduct(
   // Replacing a gallery has to be atomic. Previously the old images were
   // deleted before the product update, leaving a product without images when
   // the following database write failed.
+  const previousImages = images === undefined
+    ? []
+    : await prisma.productImage.findMany({
+        where: { productId: id },
+        select: { url: true },
+      });
+
   const product = await prisma.$transaction(async (tx) => {
     if (images !== undefined) {
       await tx.productImage.deleteMany({
@@ -706,6 +724,19 @@ export async function updateProduct(
       select: adminProductSelect,
     });
   });
+
+  // Only after the new gallery is committed, remove files that are no longer
+  // referenced, so a failed update never loses the old photos.
+  // Compare by pathname too: the dashboard may send a kept legacy
+  // "/uploads/..." image back as an absolute URL.
+  const keptUrls = new Set(
+    (storedImages || []).flatMap((image) => [image.url, mediaPathname(image.url)])
+  );
+  await deleteObjectsByUrl(
+    previousImages
+      .map((image) => image.url)
+      .filter((url) => !keptUrls.has(url) && !keptUrls.has(mediaPathname(url)))
+  );
 
 
   return serializeAdminProduct(

@@ -67,14 +67,14 @@ export async function listAdminCategories() {
 
 export async function createCategory(data) {
   const safeData = { ...data };
-  if (safeData.imageUrl) safeData.imageUrl = await persistDataUrl(safeData.imageUrl);
+  if (safeData.imageUrl) safeData.imageUrl = await persistDataUrl(safeData.imageUrl, "image/jpeg", "categories");
   const category = await prisma.category.create({ data: safeData });
   return serializeCategory(category);
 }
 
 export async function updateCategory(id, data) {
   const safeData = { ...data };
-  if (safeData.imageUrl) safeData.imageUrl = await persistDataUrl(safeData.imageUrl);
+  if (safeData.imageUrl) safeData.imageUrl = await persistDataUrl(safeData.imageUrl, "image/jpeg", "categories");
   const category = await prisma.category.update({
     where: { id },
     data: safeData,
