@@ -158,8 +158,10 @@ function blobToDataUrl(blob) {
 
 // Uploads straight from the browser to R2 using a short-lived signed URL, so
 // the image never goes through the API (Vercel caps request bodies at 4.5 MB).
-// Without R2 configured (local development) it falls back to a data URL that
-// the API stores on its local disk.
+// Without R2 configured it falls back to a data URL that the API stores on its
+// local disk, but only in development: a deployed API cannot store files and
+// Vercel rejects such large requests without CORS headers, which the browser
+// only reports as "Failed to fetch".
 export async function uploadManagerImage(file, folder = "products") {
   const blob = await compressImage(file);
   if (blob.size > MAX_UPLOAD_BYTES) {
@@ -175,7 +177,12 @@ export async function uploadManagerImage(file, folder = "products") {
       body: { mimeType: blob.type, size: blob.size, folder },
     });
   } catch (error) {
-    if (error.code === "MEDIA_STORAGE_NOT_CONFIGURED") return blobToDataUrl(blob);
+    if (error.code === "MEDIA_STORAGE_NOT_CONFIGURED") {
+      if (import.meta.env.DEV) return blobToDataUrl(blob);
+      const setupError = new Error("رفع الصور غير مفعّل على السيرفر بعد: يجب إضافة متغيرات R2 في إعدادات مشروع الـ API على Vercel.");
+      setupError.code = error.code;
+      throw setupError;
+    }
     throw error;
   }
 
