@@ -91,6 +91,7 @@ export async function getStoreInfo() {
     instagram: contact.instagram || business.instagram || footer.socialLinks?.instagram || "",
     facebook: contact.facebook || business.facebook || footer.socialLinks?.facebook || "",
     tiktok: contact.tiktok || business.tiktok || footer.socialLinks?.tiktok || "",
+    linktree: business.linktree || "",
     whatsappLink: footer.socialLinks?.whatsapp || contact.whatsapp || business.whatsapp || "",
     primaryColor: appearance.primaryColor || "#B4C4AD",
     currency: settings.general?.currency || business.currency || "ج.م",

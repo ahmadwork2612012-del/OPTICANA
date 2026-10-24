@@ -9,6 +9,7 @@ import { changeStock } from "../src/services/inventory.service.js";
 import { rateLimit } from "../src/middleware/rateLimit.js";
 import { getClientIp } from "../src/utils/clientIp.js";
 import { submitReviewSchema } from "../src/validators/review.validator.js";
+import { applyDefaults, markSavedByManager } from "../src/config/storeDefaults.js";
 
 test("authentication passwords are salted and verify only their original value", async () => {
   const hash = await hashPassword("A-strong-password-2026");
@@ -104,4 +105,17 @@ test("public orders and reviews reject oversized input", () => {
   assert.equal(createOrderSchema.safeParse({ items: [item], notes: "x".repeat(1001) }).success, false);
   assert.equal(submitReviewSchema.safeParse({ productId: "p1", rating: 5, comment: "x".repeat(1001) }).success, false);
   assert.equal(submitReviewSchema.safeParse({ productId: "p1", rating: 5, comment: "ممتاز" }).success, true);
+});
+
+test("store defaults fill unsaved fields but respect fields a manager cleared", () => {
+  const defaults = { whatsapp: "201000000000", tiktok: "https://tiktok.example" };
+  assert.deepEqual(applyDefaults(undefined, defaults), defaults);
+  // Saved blank by the old dashboard (never through the new flow): defaults apply.
+  assert.equal(applyDefaults({ tiktok: "" }, defaults).tiktok, "https://tiktok.example");
+  // Cleared by a manager: stays cleared, and the marker is not exposed.
+  const saved = markSavedByManager("business", { tiktok: "" }, { business: defaults });
+  const result = applyDefaults(saved, defaults);
+  assert.equal(result.tiktok, "");
+  assert.equal(result.whatsapp, "201000000000");
+  assert.equal("_savedByManager" in result, false);
 });

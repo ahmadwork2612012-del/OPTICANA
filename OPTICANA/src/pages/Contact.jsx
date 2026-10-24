@@ -38,6 +38,11 @@ function normalizeMapEmbedUrl(value) {
   try {
     const url = new URL(raw);
     if (!/(^|\.)google\.[a-z.]+$/i.test(url.hostname) || url.pathname.includes("/maps/embed")) return raw;
+    // Place links shared from the Maps app carry the place id either as
+    // ?cid=<decimal> or as "!1s0x<hex>:0x<hex>" (the second hex is the cid).
+    const hexCid = raw.match(/!1s0x[0-9a-f]+:0x([0-9a-f]+)/i)?.[1];
+    const cid = url.searchParams.get("cid") || (hexCid ? BigInt(`0x${hexCid}`).toString() : "");
+    if (/^\d+$/.test(cid)) return `https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s${cid}`;
     const query = url.searchParams.get("q") || url.searchParams.get("query");
     const place = url.pathname.match(/\/maps\/place\/([^/?]+)/i)?.[1];
     const coordinates = url.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/)?.slice(1).join(",");

@@ -118,7 +118,7 @@ function makeStoreForm(data = {}) {
     business: {
       storeName: business.storeName || "", phone: business.phone || "", whatsapp: business.whatsapp || "", email: business.email || "",
       address: business.address || "", workingHours: business.workingHours || "", googleMaps: business.googleMaps || business.mapUrl || "",
-      instagram: business.instagram || "", facebook: business.facebook || "", tiktok: business.tiktok || "", website: business.website || "",
+      instagram: business.instagram || "", facebook: business.facebook || "", tiktok: business.tiktok || "", website: business.website || "", linktree: business.linktree || "",
     },
     general: { slogan: general.slogan || "", currency: general.currency || "ج.م" },
     contact: { title: contact.title || "", description: contact.description || "" },
@@ -815,6 +815,7 @@ function Manager() {
                 <StoreInput label={t("الموقع الإلكتروني")} value={storeForm.business.website} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, website: value } }))} type="url" />
                 <StoreInput label="Instagram" value={storeForm.business.instagram} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, instagram: value } }))} type="url" />
                 <StoreInput label="TikTok" value={storeForm.business.tiktok} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, tiktok: value } }))} type="url" />
+                <StoreInput label={isEnglish ? "Links page (Linktree) · shown as a QR code in the footer" : "صفحة الروابط (Linktree) · تظهر كـ QR في أسفل الموقع"} value={storeForm.business.linktree} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, linktree: value } }))} type="url" placeholder="https://linktr.ee/..." />
                 <StoreInput label="Facebook" value={storeForm.business.facebook} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, facebook: value } }))} type="url" />
                 <StoreInput label={t("ساعات العمل")} value={storeForm.business.workingHours} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, workingHours: value } }))} />
                 <StoreInput label={t("العنوان")} value={storeForm.business.address} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, address: value } }))} />

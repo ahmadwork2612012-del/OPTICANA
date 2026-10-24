@@ -15,6 +15,8 @@ import {
   Link,
 } from "react-router-dom";
 
+import { QRCodeSVG } from "qrcode.react";
+
 import {
   getStoreInfo,
 } from "../../services/storeService";
@@ -231,7 +233,9 @@ function Footer() {
             </div>
 
 
-            <p className="mt-6 max-w-sm text-sm leading-8 text-[#b2b9af]">
+            {/* pre-line keeps the bio's line breaks; plaintext bidi keeps
+                English lines in order inside the RTL layout. */}
+            <p className="mt-6 max-w-sm whitespace-pre-line text-sm leading-8 text-[#b2b9af] [unicode-bidi:plaintext]">
               {
                 display(
                   store?.footerDescription
@@ -444,6 +448,41 @@ function Footer() {
             <p className="mt-4 max-w-xs text-sm leading-7 text-[#969f93]">
               للاستفسارات أو طلب المنتجات مباشرة، يمكنك التواصل معنا عبر واتساب.
             </p>
+
+
+            {/* LINKS PAGE: a QR to scan from a computer, a plain link on phones */}
+
+            {store?.linktree ? (
+              <a
+                href={store.linktree}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-6 inline-flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-[#B4C4AD]/50"
+              >
+                <span className="hidden rounded-xl bg-white p-2 sm:block">
+                  <QRCodeSVG
+                    value={store.linktree}
+                    size={84}
+                    fgColor="#263024"
+                    bgColor="#ffffff"
+                    level="M"
+                    title={t("كل روابطنا")}
+                  />
+                </span>
+
+                <span>
+                  <span className="block text-sm font-black text-[#e8ece6]">
+                    {t("كل روابطنا")}
+                  </span>
+                  <span className="mt-1 hidden text-xs leading-6 text-[#969f93] sm:block">
+                    {t("امسح الكود بكاميرا الموبايل")}
+                  </span>
+                  <span className="mt-1 block text-xs text-[#969f93] sm:hidden">
+                    {t("اضغط لفتح الروابط")}
+                  </span>
+                </span>
+              </a>
+            ) : null}
 
           </div>
 

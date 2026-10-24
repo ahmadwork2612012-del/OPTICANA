@@ -1,5 +1,12 @@
 import prisma from "../lib/prisma.js";
 import { persistNestedMedia } from "./media.service.js";
+import {
+  CONTENT_DEFAULTS,
+  SETTING_DEFAULTS,
+  applyDefaults,
+  markSavedByManager,
+  withDefaults,
+} from "../config/storeDefaults.js";
 
 
 /* =====================================
@@ -45,7 +52,7 @@ export async function getAllSettings() {
       row.valueJson;
   }
 
-  return settings;
+  return withDefaults(settings, SETTING_DEFAULTS);
 }
 
 
@@ -84,7 +91,7 @@ export async function getPublicSettings() {
       value;
   }
 
-  return settings;
+  return withDefaults(settings, SETTING_DEFAULTS);
 }
 
 
@@ -126,7 +133,7 @@ export async function upsertSetting(
     throw error;
   }
 
-  const safeValue = await persistNestedMedia(value);
+  const safeValue = markSavedByManager(normalizedKey, await persistNestedMedia(value), SETTING_DEFAULTS);
 
   const row =
     await prisma.storeSetting.upsert({
@@ -154,7 +161,7 @@ export async function upsertSetting(
       row.key,
 
     value:
-      row.valueJson,
+      applyDefaults(row.valueJson, SETTING_DEFAULTS[row.key]),
   };
 }
 
@@ -178,7 +185,7 @@ export async function getAllContent() {
       row.valueJson;
   }
 
-  return content;
+  return withDefaults(content, CONTENT_DEFAULTS);
 }
 
 
@@ -216,7 +223,7 @@ export async function getPublicContent() {
       row.valueJson;
   }
 
-  return content;
+  return withDefaults(content, CONTENT_DEFAULTS);
 }
 
 
@@ -258,7 +265,7 @@ export async function upsertContent(
     throw error;
   }
 
-  const safeValue = await persistNestedMedia(value);
+  const safeValue = markSavedByManager(normalizedKey, await persistNestedMedia(value), CONTENT_DEFAULTS);
 
   const row =
     await prisma.storeContent.upsert({
@@ -286,6 +293,6 @@ export async function upsertContent(
       row.key,
 
     value:
-      row.valueJson,
+      applyDefaults(row.valueJson, CONTENT_DEFAULTS[row.key]),
   };
 }
