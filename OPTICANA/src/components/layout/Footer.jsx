@@ -1,5 +1,4 @@
 import {
-  ArrowUpLeft,
   Mail,
   MapPin,
   MessageCircle,
@@ -131,59 +130,29 @@ function Footer() {
     "";
 
 
-  const quickLinks =
-    Array.isArray(
-      store?.footerLinks
-    ) &&
-    store.footerLinks.length > 0
-      ? store.footerLinks
-      : [
-          {
-            label:
-              "الرئيسية",
-            path: "/",
-          },
-          {
-            label:
-              "المنتجات",
-            path: "/products",
-          },
-          {
-            label:
-              "العروض",
-            path: "/offers",
-          },
-          {
-            label:
-              "من نحن",
-            path: "/about",
-          },
-          {
-            label:
-              "تواصل معنا",
-            path: "/contact",
-          },
-        ];
 
 
+  // Empty details are hidden instead of printing a "not added yet" note.
   const display =
     (value) =>
       value?.trim()
         ? value
-        : "لم تتم الإضافة بعد";
+        : "";
 
 
   return (
-    <footer className="mt-24 overflow-hidden bg-[#20251f] text-white">
+    <footer className="mt-12 overflow-hidden bg-[#20251f] text-white lg:mt-24">
 
       {/* TOP LINE */}
 
       <div className="h-px bg-gradient-to-r from-transparent via-[#B4C4AD] to-transparent" />
 
 
-      <div className="mx-auto max-w-7xl px-6 py-16">
+      {/* Phones get the bottom tab bar and the contact page instead of the
+          full footer; only the copyright line below stays visible. */}
+      <div className="mx-auto hidden max-w-7xl px-6 py-16 lg:block">
 
-        <div className="grid gap-12 lg:grid-cols-[1.25fr_0.8fr_1fr_1fr]">
+        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
 
 
           {/* =================================
@@ -194,21 +163,18 @@ function Footer() {
 
             <div className="flex items-center gap-3">
 
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#B4C4AD] font-black text-[#263024]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
 
-                {store?.logo ? (
-                  <img
-                    src={
-                      store.logo
-                    }
-                    alt={
-                      storeName
-                    }
-                    className="h-full w-full object-contain p-1.5"
-                  />
-                ) : (
-                  "O"
-                )}
+                <img
+                  src={
+                    store?.mark ||
+                    "/opticana-mark.png"
+                  }
+                  alt={
+                    storeName
+                  }
+                  className="h-full w-full object-contain p-1.5"
+                />
 
               </div>
 
@@ -274,61 +240,6 @@ function Footer() {
           </div>
 
 
-          {/* =================================
-              QUICK LINKS
-          ================================= */}
-
-          <div>
-
-            <h3 className="mb-5 text-sm font-black tracking-wide text-[#B4C4AD]">
-              روابط سريعة
-            </h3>
-
-
-            <ul className="space-y-3">
-
-              {quickLinks.map(
-                (
-                  link,
-                  index
-                ) => (
-                  <li
-                    key={
-                      link.id ||
-                      link.path ||
-                      link.label ||
-                      index
-                    }
-                  >
-
-                    <Link
-                      to={
-                        link.path ||
-                        "/"
-                      }
-                      className="group inline-flex items-center gap-1.5 text-sm font-bold text-[#c2c8bf] transition hover:text-white"
-                    >
-
-                      {
-                        link.label ||
-                        "رابط"
-                      }
-
-                      <ArrowUpLeft
-                        size={13}
-                        className="opacity-0 transition group-hover:translate-x-[-2px] group-hover:opacity-100"
-                      />
-
-                    </Link>
-
-                  </li>
-                )
-              )}
-
-            </ul>
-
-          </div>
-
 
           {/* =================================
               CONTACT
@@ -350,13 +261,15 @@ function Footer() {
                 }
                 label="الهاتف"
                 value={
-                  display(
-                    phone
-                  )
+                  display(phone) ? (
+                    <bdi dir="ltr">
+                      {phone}
+                    </bdi>
+                  ) : ""
                 }
                 href={
                   phone
-                    ? `tel:${phone}`
+                    ? `tel:${phone.replace(/[^\d+]/g, "")}`
                     : undefined
                 }
               />
@@ -539,6 +452,10 @@ function FooterContactItem({
   value,
   href,
 }) {
+  if (!value) {
+    return null;
+  }
+
   const content = (
     <div className="flex items-start gap-3">
 

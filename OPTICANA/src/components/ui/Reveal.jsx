@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
-function Reveal({ children, delay = 0 }) {
+function Reveal({ children, delay = 0, className }) {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.15,
@@ -10,6 +10,7 @@ function Reveal({ children, delay = 0 }) {
   return (
     <motion.div
       ref={ref}
+      className={className}
       initial={{
         opacity: 0,
         y: 60,

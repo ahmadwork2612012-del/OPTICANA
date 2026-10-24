@@ -375,8 +375,8 @@ function About() {
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10 text-center">
 
-                    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#B4C4AD] text-3xl font-black text-[#283226]">
-                      O
+                    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white p-3 shadow-sm ring-1 ring-[#dfe6dc]">
+                      <img src="/opticana-mark.png" alt="" className="h-full w-full object-contain" />
                     </div>
 
 

@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import MobileTabBar from "../components/layout/MobileTabBar";
 
 import Maintenance from "../pages/Maintenance";
 
@@ -130,6 +131,8 @@ function MainLayout({
       {children}
 
       <Footer />
+
+      <MobileTabBar />
 
     </div>
   );

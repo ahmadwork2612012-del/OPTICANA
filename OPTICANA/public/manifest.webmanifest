@@ -1,0 +1,17 @@
+{
+  "name": "OPTICANA | بصريات أوبتيكانا",
+  "short_name": "OPTICANA",
+  "description": "نظارات شمسية • إطارات طبية • عدسات لاصقة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbfcfa",
+  "theme_color": "#fbfcfa",
+  "icons": [
+    { "src": "/opticana-icon.png", "sizes": "886x886", "type": "image/png", "purpose": "any" },
+    { "src": "/opticana-icon.png", "sizes": "886x886", "type": "image/png", "purpose": "maskable" }
+  ]
+}

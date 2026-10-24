@@ -170,8 +170,8 @@ function Navbar() {
 
 
   const logo =
-    store?.logo ||
-    "/opticana-logo.png";
+    store?.mark ||
+    "/opticana-mark.png";
 
 
   const whatsapp =

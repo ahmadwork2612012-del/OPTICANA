@@ -55,3 +55,16 @@ body {
 .badge-pop {
   animation: badge-pop 0.25s ease-out;
 }
+
+/* App-like touch behaviour on phones: no grey flash on tap, no accidental
+   text-size jumps on rotation, and no pull-to-refresh bounce behind the
+   fixed bottom bar. */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overscroll-behavior-y: none;
+}

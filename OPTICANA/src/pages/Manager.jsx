@@ -477,7 +477,7 @@ function Manager() {
           <section className="hidden bg-[#B4C4AD] p-10 text-white lg:flex lg:flex-col lg:justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B4C4AD] text-xl font-black text-[#2f382c]">O</div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-1.5 ring-1 ring-white/20"><img src="/opticana-mark.png" alt="" className="h-full w-full object-contain" /></div>
                 <div>
                   <div className="text-xl font-black tracking-[0.08em]">OPTICANA</div>
                   <div className="text-xs text-white/65">{t("إدارة المتجر")}</div>
@@ -552,7 +552,7 @@ function Manager() {
       <header className="sticky top-0 z-30 border-b border-[#e2e7df] bg-[#fbfcfa]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-5 sm:px-6">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#B4C4AD] font-black text-[#2f382c]">O</div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white p-1 ring-1 ring-[#dfe6dc]"><img src="/opticana-mark.png" alt="" className="h-full w-full object-contain" /></div>
             <div>
               <div className="text-lg font-black tracking-[0.08em]">OPTICANA</div>
               <div className="text-[10px] font-bold text-[#7b8578]">{t("إدارة المنتجات")}</div>

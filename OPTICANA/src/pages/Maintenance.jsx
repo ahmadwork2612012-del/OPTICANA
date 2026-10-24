@@ -162,8 +162,8 @@ function Maintenance() {
                   ) : (
                     <div className="text-center">
 
-                      <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] bg-[#B4C4AD] text-4xl font-black text-[#263024]">
-                        O
+                      <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] bg-white p-3.5 shadow-sm ring-1 ring-[#dfe6dc]">
+                        <img src="/opticana-mark.png" alt="" className="h-full w-full object-contain" />
                       </div>
 
                       <p className="mt-6 text-3xl font-black text-[#364132]">

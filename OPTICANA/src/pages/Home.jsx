@@ -405,7 +405,7 @@ function Home() {
           <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-[#eef1df] opacity-80 blur-3xl" />
 
 
-          <div className="mx-auto flex min-h-[78vh] max-w-7xl flex-col-reverse items-center justify-between gap-14 px-6 py-14 lg:flex-row lg:py-20">
+          <div className="mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-14 px-6 py-10 lg:min-h-[78vh] lg:flex-row lg:py-20">
 
             {/* TEXT */}
 
@@ -550,9 +550,11 @@ function Home() {
 
             {/* HERO IMAGE */}
 
+            {/* Without a hero photo, phones skip the logo card: the text
+                block right below already shows the logo. */}
             <Reveal
               delay={0.15}
-              className="w-full lg:w-[44%]"
+              className={`w-full lg:w-[44%] ${hero.image ? "" : "hidden lg:block"}`}
             >
 
               <div className="relative">
@@ -578,24 +580,11 @@ function Home() {
                     ) : (
                       <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10 text-center">
 
-                        <div>
-
-                          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#B4C4AD] text-3xl font-black text-[#283226]">
-                            O
-                          </div>
-
-                          <p className="mt-5 text-2xl font-black text-[#364132]">
-                            {
-                              store?.name ||
-                              "OPTICANA"
-                            }
-                          </p>
-
-                          <p className="mt-2 text-sm font-bold text-[#788374]">
-                            الصورة الرئيسية ستضاف من CMS
-                          </p>
-
-                        </div>
+                        <img
+                          src={store?.logo || "/opticana-logo.png"}
+                          alt={store?.name || "OPTICANA"}
+                          className="h-auto w-[72%] max-w-[300px] object-contain drop-shadow-sm"
+                        />
 
                       </div>
                     )}

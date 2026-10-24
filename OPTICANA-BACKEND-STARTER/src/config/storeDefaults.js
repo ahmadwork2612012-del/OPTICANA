@@ -9,6 +9,7 @@ export const DEFAULTS_SAVED_FLAG = "_savedByManager";
 
 export const SETTING_DEFAULTS = {
   business: {
+    phone: "+20 100 327 7700",
     whatsapp: "201003277700",
     address: "Imbaba, Giza • Abbas El Akkad, Nasr City",
     // CID taken from the shop's Google Maps place link; works both as a

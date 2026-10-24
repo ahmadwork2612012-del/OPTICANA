@@ -81,6 +81,8 @@ export async function getStoreInfo() {
     // Admin-managed branding keeps priority. These bundled assets are only the
     // resilient brand fallback used before a manager uploads their own media.
     logo: resolveMediaUrl(appearance.logo || general.logo || business.logo || null) || "/opticana-logo.png",
+    // Icon-only mark for small square spots (header, footer, placeholders).
+    mark: resolveMediaUrl(appearance.logo || general.logo || business.logo || null) || "/opticana-mark.png",
     favicon: resolveMediaUrl(appearance.favicon || general.favicon || business.favicon || null) || "/opticana-icon.png",
     phone: contact.phone || general.phone || business.phone || "",
     whatsapp: contact.whatsapp || general.whatsapp || business.whatsapp || "",

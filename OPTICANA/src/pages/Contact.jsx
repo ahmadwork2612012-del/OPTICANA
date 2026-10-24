@@ -324,13 +324,13 @@ function Contact() {
                 }
                 title="الهاتف"
                 value={
-                  displayValue(
-                    phone
-                  )
+                  <bdi dir="ltr">
+                    {phone}
+                  </bdi>
                 }
                 href={
                   phone
-                    ? `tel:${phone}`
+                    ? `tel:${phone.replace(/[^\d+]/g, "")}`
                     : undefined
                 }
                 muted={
@@ -531,7 +531,7 @@ function Contact() {
 
 
               <p className="mt-3 text-sm leading-7 text-[#788374]">
-                جميع روابط التواصل الاجتماعي يتم التحكم بها من إدارة المتجر.
+                تابعونا لتعرفوا أحدث التشكيلات والعروض أول بأول.
               </p>
 
             </div>
@@ -719,6 +719,11 @@ function ContactCard({
   external = false,
   muted = false,
 }) {
+  // Details the store has not filled in are hidden from customers.
+  if (muted) {
+    return null;
+  }
+
   const content = (
     <div className="flex h-full flex-col rounded-[1.75rem] border border-[#dfe6dc] bg-white p-5 shadow-sm transition sm:p-6">
 
