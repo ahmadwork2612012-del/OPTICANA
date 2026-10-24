@@ -334,62 +334,54 @@ function Footer() {
 
             </div>
 
+
+            {/* Quick WhatsApp sits with the other contact details. */}
+
+            {whatsapp && (
+              <div className="mt-7">
+                <a
+                  href={`https://wa.me/${whatsapp}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3.5 text-sm font-black text-[#263024] transition hover:bg-[#c3d0bd]"
+                >
+                  <MessageCircle
+                    size={18}
+                  />
+
+                  واتساب
+                </a>
+
+                <p className="mt-3 max-w-xs text-sm leading-7 text-[#969f93]">
+                  للاستفسارات أو طلب المنتجات مباشرة، يمكنك التواصل معنا عبر واتساب.
+                </p>
+              </div>
+            )}
+
           </div>
 
 
           {/* =================================
-              WHATSAPP
+              LINKS PAGE (QR in its own column)
           ================================= */}
 
-          <div>
+          {store?.linktree ? (
+            <div>
 
-            <h3 className="mb-5 text-sm font-black tracking-wide text-[#B4C4AD]">
-              تواصل سريع
-            </h3>
+              <h3 className="mb-5 text-sm font-black tracking-wide text-[#B4C4AD]">
+                {t("كل روابطنا")}
+              </h3>
 
-
-            {whatsapp ? (
-              <a
-                href={`https://wa.me/${whatsapp}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3.5 text-sm font-black text-[#263024] transition hover:bg-[#c3d0bd]"
-              >
-                <MessageCircle
-                  size={18}
-                />
-
-                واتساب
-              </a>
-            ) : (
-              <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-black text-[#7f887d]">
-                <MessageCircle
-                  size={18}
-                />
-
-                واتساب غير مضاف
-              </div>
-            )}
-
-
-            <p className="mt-4 max-w-xs text-sm leading-7 text-[#969f93]">
-              للاستفسارات أو طلب المنتجات مباشرة، يمكنك التواصل معنا عبر واتساب.
-            </p>
-
-
-            {/* LINKS PAGE: a QR to scan from a computer, a plain link on phones */}
-
-            {store?.linktree ? (
               <a
                 href={store.linktree}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-6 inline-flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-[#B4C4AD]/50"
+                className="inline-flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-[#B4C4AD]/50"
               >
-                <span className="hidden rounded-xl bg-white p-2 sm:block">
+                <span className="rounded-xl bg-white p-2.5">
                   <QRCodeSVG
                     value={store.linktree}
-                    size={84}
+                    size={120}
                     fgColor="#263024"
                     bgColor="#ffffff"
                     level="M"
@@ -397,21 +389,13 @@ function Footer() {
                   />
                 </span>
 
-                <span>
-                  <span className="block text-sm font-black text-[#e8ece6]">
-                    {t("كل روابطنا")}
-                  </span>
-                  <span className="mt-1 hidden text-xs leading-6 text-[#969f93] sm:block">
-                    {t("امسح الكود بكاميرا الموبايل")}
-                  </span>
-                  <span className="mt-1 block text-xs text-[#969f93] sm:hidden">
-                    {t("اضغط لفتح الروابط")}
-                  </span>
+                <span className="text-xs leading-6 text-[#969f93]">
+                  {t("امسح الكود بكاميرا الموبايل")}
                 </span>
               </a>
-            ) : null}
 
-          </div>
+            </div>
+          ) : null}
 
         </div>
 

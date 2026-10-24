@@ -543,6 +543,14 @@ function createTranslator() {
   return {
     apply,
     observer,
+    // disconnect() drops queued records. When the language changes, React
+    // has just re-rendered language-dependent text (e.g. English bio, product
+    // nameEn) and those records are still queued; without reading them first
+    // apply() would restore the old remembered text over the new render.
+    disconnect() {
+      synchronizeMutations(observer.takeRecords());
+      observer.disconnect();
+    },
     setLanguage(nextLanguage) {
       language = nextLanguage === "en" ? "en" : "ar";
       apply();
@@ -590,7 +598,7 @@ export function LanguageProvider({ children }) {
       attributeFilter: ["aria-label", "title", "placeholder", "content"],
     });
 
-    return () => translator.observer.disconnect();
+    return () => translator.disconnect();
   }, [language]);
 
   const value = useMemo(
