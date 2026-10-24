@@ -13,9 +13,9 @@ export const BUSINESS_DEFAULTS = {
   address: "إمبابة، الجيزة • عباس العقاد، مدينة نصر",
   addressEn: "Imbaba, Giza • Abbas El Akkad, Nasr City",
   googleMaps: "https://www.google.com/maps?cid=7358996241147469603",
-  instagram: "https://tr.ee/VpdkBQKL9p",
-  tiktok: "https://tr.ee/caFEwUf98Q",
-  facebook: "https://tr.ee/LNiuUtgm9_",
+  instagram: "https://www.instagram.com/opticana_optics",
+  tiktok: "https://www.tiktok.com/@opticana_optics",
+  facebook: "https://www.facebook.com/Opticana.optics",
   linktree: "https://linktr.ee/opticanaoptics",
 };
 

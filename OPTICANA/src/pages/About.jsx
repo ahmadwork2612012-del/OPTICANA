@@ -211,9 +211,6 @@ function About() {
     "OPTICANA";
 
 
-  const slogan =
-    store?.slogan ||
-    "عيونك أحلى معانا";
 
 
   return (
@@ -253,18 +250,9 @@ function About() {
 
             <div className="max-w-2xl">
 
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#596655]">
-
-                <Sparkles
-                  size={14}
-                />
-
-                {slogan}
-
-              </span>
 
 
-              <h1 className="mt-7 text-5xl font-black leading-tight tracking-tight text-[#20251f] sm:text-6xl">
+              <h1 className="text-5xl font-black leading-tight tracking-tight text-[#20251f] sm:text-6xl">
                 {title}
               </h1>
 

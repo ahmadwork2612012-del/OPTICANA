@@ -16,9 +16,9 @@ export const SETTING_DEFAULTS = {
     // CID taken from the shop's Google Maps place link; works both as a
     // link and, with &output=embed, inside the contact page map.
     googleMaps: "https://www.google.com/maps?cid=7358996241147469603",
-    instagram: "https://tr.ee/VpdkBQKL9p",
-    tiktok: "https://tr.ee/caFEwUf98Q",
-    facebook: "https://tr.ee/LNiuUtgm9_",
+    instagram: "https://www.instagram.com/opticana_optics",
+    tiktok: "https://www.tiktok.com/@opticana_optics",
+    facebook: "https://www.facebook.com/Opticana.optics",
     linktree: "https://linktr.ee/opticanaoptics",
   },
 };

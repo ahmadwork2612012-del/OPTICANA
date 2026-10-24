@@ -1,6 +1,5 @@
 import {
   ArrowLeft,
-  Sparkles,
   Tag,
 } from "lucide-react";
 
@@ -263,18 +262,7 @@ function Offers() {
 
             <div className="max-w-2xl">
 
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#EFE8E2] px-3.5 py-2 text-xs font-black text-[#596655]">
-
-                <Sparkles
-                  size={14}
-                />
-
-                عروض OPTICANA
-
-              </div>
-
-
-              <h1 className="mt-5 text-4xl font-black tracking-tight text-[#20251f] sm:text-5xl">
+              <h1 className="text-4xl font-black tracking-tight text-[#20251f] sm:text-5xl">
                 {
                   title
                 }

@@ -283,12 +283,9 @@ function Contact() {
             className="max-w-3xl"
           >
 
-            <span className="inline-flex items-center rounded-full bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#5c6b58]">
-              {storeName}
-            </span>
 
 
-            <h1 className="mt-5 text-5xl font-black tracking-tight text-[#20251f] sm:text-6xl">
+            <h1 className="text-5xl font-black tracking-tight text-[#20251f] sm:text-6xl">
               {title}
             </h1>
 
