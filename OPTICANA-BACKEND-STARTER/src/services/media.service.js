@@ -1,10 +1,14 @@
 import prisma from "../lib/prisma.js";
-import { deleteObjectByUrl, putObject } from "./storage.service.js";
+import { deleteObjectByUrl, putObject, verifyStoredImage } from "./storage.service.js";
 
 function serialize(m){return m}
 
 export async function persistDataUrl(value, mimeType="image/jpeg", folder="general"){
-  if(!String(value||"").startsWith("data:")) return value;
+  if(!String(value||"").startsWith("data:")) {
+    // Already-uploaded URL: confirm a direct R2 upload really is an image.
+    await verifyStoredImage(value);
+    return value;
+  }
   const match=String(value).match(/^data:([^;]+);base64,(.+)$/s);
   if(!match) throw Object.assign(new Error("Invalid data URL"),{statusCode:400,code:"INVALID_MEDIA"});
   const mime=match[1].toLowerCase();

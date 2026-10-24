@@ -8,6 +8,7 @@ import {
 
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { rateLimit } from "../middleware/rateLimit.js";
+import { clearSessionCookie, setSessionCookie } from "../utils/sessionCookie.js";
 
 const router = Router();
 
@@ -53,6 +54,10 @@ router.post(
       password,
     });
 
+    // The HttpOnly cookie is the session. The token stays in the body only
+    // as a fallback for browsers that block the cross-site cookie.
+    setSessionCookie(res, result.token);
+
     res.json({
       success: true,
       data: result,
@@ -64,6 +69,11 @@ router.post(
 
 
 
+
+router.post("/logout", (req, res) => {
+  clearSessionCookie(res);
+  res.json({ success: true, data: null });
+});
 
 router.get("/me", requireAuth, (req, res) => {
   res.json({ success: true, data: { user: req.user } });
@@ -107,18 +117,7 @@ router.post(
         throw error;
       }
 
-      if (
-        newPassword.length < 8
-      ) {
-        const error = new Error(
-          "New password must be at least 8 characters"
-        );
-
-        error.statusCode = 400;
-        error.code = "VALIDATION_ERROR";
-
-        throw error;
-      }
+      // Strength is checked by changeUserPassword (shared password policy).
 
       const result =
         await changeUserPassword(

@@ -5,6 +5,8 @@ import {
   hashPassword,
 } from "../utils/password.js";
 
+import { assertStrongPassword } from "../utils/passwordPolicy.js";
+
 import {
   signToken,
 } from "../utils/jwt.js";
@@ -66,6 +68,7 @@ export async function createUser({
     throw error;
   }
   assertRoleAssignment(actorRole, normalizedRole);
+  assertStrongPassword(password, { email: normalizedEmail, name });
 
   const passwordHash =
     await hashPassword(
@@ -206,6 +209,8 @@ export async function changeUserPassword(
     throw error;
   }
 
+  assertStrongPassword(newPassword, { email: user.email, name: user.name });
+
   const passwordHash = await hashPassword(newPassword);
 
   await prisma.user.update({
@@ -293,13 +298,10 @@ export async function updateUser(userId, input, actorId) {
 
   if (input.isActive !== undefined) data.isActive = Boolean(input.isActive);
   if (input.password !== undefined) {
-    const password = String(input.password);
-    if (password.length < 8) {
-      const e = new Error("Password must be at least 8 characters");
-      e.statusCode = 400;
-      e.code = "VALIDATION_ERROR";
-      throw e;
-    }
+    const password = assertStrongPassword(input.password, {
+      email: input.email ?? current.email,
+      name: input.name ?? current.name,
+    });
     if (actorRole !== "SUPER_ADMIN" && current.role === "SUPER_ADMIN") {
       const e = new Error("Only a SUPER_ADMIN can reset a SUPER_ADMIN password");
       e.statusCode = 403;

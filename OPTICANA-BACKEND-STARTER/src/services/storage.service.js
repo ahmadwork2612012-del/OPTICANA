@@ -4,6 +4,7 @@ import path from "node:path";
 
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -118,8 +119,64 @@ export async function createUploadUrl({ mimeType, size, folder }) {
   };
 }
 
+/*
+  The declared type comes from the browser and can be anything, so the file's
+  own leading bytes ("magic numbers") decide what it really is.
+*/
+export function detectImageType(bytes) {
+  const b = Buffer.from(bytes || []);
+  if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
+  if (b.length >= 8 && b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (b.length >= 6 && ["GIF87a", "GIF89a"].includes(b.subarray(0, 6).toString("latin1"))) return "image/gif";
+  if (b.length >= 12 && b.subarray(0, 4).toString("latin1") === "RIFF" && b.subarray(8, 12).toString("latin1") === "WEBP") return "image/webp";
+  return null;
+}
+
+function assertContentMatches(bytes, declaredMime) {
+  const actual = detectImageType(bytes);
+  const declared = declaredMime === "image/jpg" ? "image/jpeg" : declaredMime;
+  if (!actual || (declared && actual !== declared)) {
+    throw mediaError("The file is not a valid image", 400, "INVALID_MEDIA_CONTENT");
+  }
+  return actual;
+}
+
+const verifiedUploads = new Set();
+
+/*
+  Direct browser uploads never pass through the API, so their content is
+  checked when a URL is first saved on a product/category/setting: read the
+  first bytes from R2 and delete the object if it is not a real image.
+  Non-R2 URLs (external links, legacy /uploads) are left as they are.
+*/
+export async function verifyStoredImage(url) {
+  const value = String(url || "").trim();
+  if (!isR2Enabled || !value.startsWith(`${r2PublicBase}/`) || verifiedUploads.has(value)) return;
+
+  const key = decodeURIComponent(value.slice(r2PublicBase.length + 1));
+  let head;
+  try {
+    const object = await r2().send(new GetObjectCommand({ Bucket: env.R2_BUCKET, Key: key, Range: "bytes=0-15" }));
+    head = Buffer.from(await object.Body.transformToByteArray());
+  } catch (error) {
+    if (error?.name === "NoSuchKey" || error?.$metadata?.httpStatusCode === 404) {
+      throw mediaError("Uploaded image was not found", 400, "MEDIA_NOT_FOUND");
+    }
+    throw error;
+  }
+
+  if (!detectImageType(head)) {
+    await deleteObjectByUrl(value);
+    throw mediaError("The file is not a valid image", 400, "INVALID_MEDIA_CONTENT");
+  }
+
+  verifiedUploads.add(value);
+  if (verifiedUploads.size > 5000) verifiedUploads.clear();
+}
+
 export async function putObject(buffer, mimeType, folder = "general") {
-  const mime = assertImage(mimeType, buffer.length);
+  assertImage(mimeType, buffer.length);
+  const mime = assertContentMatches(buffer, String(mimeType).toLowerCase());
   const key = makeKey(folder, mime);
 
   if (isR2Enabled) {

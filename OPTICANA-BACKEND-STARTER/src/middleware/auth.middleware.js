@@ -4,6 +4,10 @@ import {
   verifyToken,
 } from "../utils/jwt.js";
 
+import { readSessionCookie } from "../utils/sessionCookie.js";
+
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
 
 /* =========================================================
    REQUIRE AUTH
@@ -18,29 +22,48 @@ export async function requireAuth(
     const header =
       req.headers.authorization || "";
 
+    /*
+      The dashboard normally authenticates with the HttpOnly session
+      cookie; the Bearer header remains for browsers that block the
+      cross-site cookie (and for API clients).
+    */
+    const bearer =
+      header.startsWith("Bearer ")
+        ? header.slice(7).trim()
+        : "";
 
+    const cookieToken =
+      bearer
+        ? null
+        : readSessionCookie(req);
+
+    const token =
+      bearer ||
+      cookieToken ||
+      "";
+
+
+    /*
+      Cookies are sent automatically, so a cookie-authenticated write must
+      also carry a custom header. Other sites cannot add it without a CORS
+      preflight, which only our own origins pass (CSRF protection).
+    */
     if (
-      !header.startsWith(
-        "Bearer "
-      )
+      cookieToken &&
+      !SAFE_METHODS.has(req.method) &&
+      req.headers["x-opticana-csrf"] !== "1"
     ) {
       const error =
         new Error(
-          "Authentication required"
+          "Missing request verification header"
         );
 
-      error.statusCode = 401;
+      error.statusCode = 403;
       error.code =
-        "AUTH_REQUIRED";
+        "CSRF_CHECK_FAILED";
 
       throw error;
     }
-
-
-    const token =
-      header
-        .slice(7)
-        .trim();
 
 
     if (!token) {

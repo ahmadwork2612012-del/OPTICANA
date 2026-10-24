@@ -2,44 +2,99 @@ import { compressImage } from "../utils/compressImage";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
-const AUTH_KEY = "opticana-manager-auth";
 // Must match MAX_IMAGE_BYTES in the API's storage service.
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
-function getSession() {
+/*
+  Session storage:
+  - The API keeps the session in an HttpOnly cookie that page scripts cannot
+    read. Only the signed-in user's name/role is remembered here, to know
+    whether to show the dashboard.
+  - Browsers that block the API's cross-site cookie (Safari), or an API that
+    does not set it yet, fall back to a Bearer token in sessionStorage, which
+    is cleared when the tab closes (never localStorage).
+*/
+const USER_KEY = "opticana-manager-user";
+const TOKEN_KEY = "opticana-manager-token";
+const LEGACY_AUTH_KEY = "opticana-manager-auth";
+
+function readJson(storage, key) {
   try {
-    const raw = window.localStorage.getItem(AUTH_KEY);
+    const raw = storage.getItem(key);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-function saveSession(session) {
-  if (session) window.localStorage.setItem(AUTH_KEY, JSON.stringify(session));
-  else window.localStorage.removeItem(AUTH_KEY);
+// One-time move away from the old localStorage token.
+(function migrateLegacySession() {
+  try {
+    const legacy = readJson(window.localStorage, LEGACY_AUTH_KEY);
+    if (!legacy) return;
+    if (legacy.user) window.localStorage.setItem(USER_KEY, JSON.stringify(legacy.user));
+    if (legacy.token) window.sessionStorage.setItem(TOKEN_KEY, legacy.token);
+    window.localStorage.removeItem(LEGACY_AUTH_KEY);
+  } catch {
+    // Storage unavailable (private mode); the user simply signs in again.
+  }
+})();
+
+function getFallbackToken() {
+  try {
+    return window.sessionStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function setFallbackToken(token) {
+  try {
+    if (token) window.sessionStorage.setItem(TOKEN_KEY, token);
+    else window.sessionStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // Ignore: without storage the session lasts for this page only.
+  }
+}
+
+function saveUser(user) {
+  try {
+    if (user) window.localStorage.setItem(USER_KEY, JSON.stringify(user));
+    else window.localStorage.removeItem(USER_KEY);
+  } catch {
+    // Ignore unavailable storage.
+  }
+}
+
+function clearSession() {
+  saveUser(null);
+  setFallbackToken(null);
 }
 
 async function request(path, options = {}) {
-  const session = getSession();
+  const { withToken = true, ...fetchOptions } = options;
   const headers = {
     Accept: "application/json",
-    ...(options.body ? { "Content-Type": "application/json" } : {}),
-    ...(options.headers || {}),
+    // Required by the API for cookie-authenticated writes (CSRF check).
+    "X-Opticana-Csrf": "1",
+    ...(fetchOptions.body ? { "Content-Type": "application/json" } : {}),
+    ...(fetchOptions.headers || {}),
   };
-  if (session?.token) headers.Authorization = `Bearer ${session.token}`;
+  const token = withToken ? getFallbackToken() : null;
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
+    ...fetchOptions,
     headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    credentials: "include",
+    body: fetchOptions.body ? JSON.stringify(fetchOptions.body) : undefined,
   });
 
   let data = null;
   try { data = await response.json(); } catch {}
 
-  if (response.status === 401) {
-    saveSession(null);
+  if (response.status === 401 && withToken) {
+    clearSession();
   }
 
   if (!response.ok || data?.success === false) {
@@ -54,24 +109,42 @@ async function request(path, options = {}) {
 export async function managerLogin(email, password) {
   const result = await request("/auth/login", {
     method: "POST",
+    withToken: false,
     body: { email: String(email || "").trim().toLowerCase(), password },
   });
 
   const role = result?.user?.role;
   if (!["ADMIN", "SUPER_ADMIN"].includes(role)) {
+    await managerLogout();
     throw new Error("هذا الحساب لا يملك صلاحية إدارة المنتجات.");
   }
 
-  saveSession({ token: result.token, user: result.user });
+  // Use the HttpOnly cookie when the browser accepted it; otherwise keep the
+  // token for this tab only.
+  let cookieWorks = false;
+  try {
+    await request("/auth/me", { withToken: false });
+    cookieWorks = true;
+  } catch {
+    cookieWorks = false;
+  }
+  setFallbackToken(cookieWorks ? null : result.token);
+  saveUser(result.user);
   return result.user;
 }
 
-export function managerLogout() {
-  saveSession(null);
+export async function managerLogout() {
+  try {
+    await request("/auth/logout", { method: "POST", withToken: false });
+  } catch {
+    // An older API without /auth/logout: clearing local state is enough.
+  }
+  clearSession();
 }
 
 export function getManagerSession() {
-  return getSession();
+  const user = readJson(window.localStorage, USER_KEY);
+  return user ? { user } : null;
 }
 
 function blobToDataUrl(blob) {

@@ -6,3 +6,6 @@ prisma/*.db
 coverage/
 dist/
 .DS_Store
+
+# Locally stored media (development fallback; production uses R2)
+uploads/

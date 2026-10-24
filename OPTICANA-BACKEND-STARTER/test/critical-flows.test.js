@@ -10,6 +10,9 @@ import { rateLimit } from "../src/middleware/rateLimit.js";
 import { getClientIp } from "../src/utils/clientIp.js";
 import { submitReviewSchema } from "../src/validators/review.validator.js";
 import { applyDefaults, markSavedByManager } from "../src/config/storeDefaults.js";
+import { assertStrongPassword } from "../src/utils/passwordPolicy.js";
+import { detectImageType } from "../src/services/storage.service.js";
+import { readSessionCookie } from "../src/utils/sessionCookie.js";
 
 test("authentication passwords are salted and verify only their original value", async () => {
   const hash = await hashPassword("A-strong-password-2026");
@@ -118,4 +121,30 @@ test("store defaults fill unsaved fields but respect fields a manager cleared", 
   assert.equal(result.tiktok, "");
   assert.equal(result.whatsapp, "201000000000");
   assert.equal("_savedByManager" in result, false);
+});
+
+test("staff passwords need length, letters and numbers, and no account details", () => {
+  assert.throws(() => assertStrongPassword("short1"), { code: "WEAK_PASSWORD" });
+  assert.throws(() => assertStrongPassword("onlyletterspassword"), { code: "WEAK_PASSWORD" });
+  assert.throws(() => assertStrongPassword("1234567890"), { code: "WEAK_PASSWORD" });
+  assert.throws(() => assertStrongPassword("password123"), { code: "WEAK_PASSWORD" });
+  assert.throws(() => assertStrongPassword("maryam2026xyz", { email: "maryam@opticana.com" }), { code: "WEAK_PASSWORD" });
+  assert.equal(assertStrongPassword("Glasses-Store-2026"), "Glasses-Store-2026");
+  assert.equal(assertStrongPassword("نظارات2026أوبتيكانا"), "نظارات2026أوبتيكانا");
+});
+
+test("uploaded images are recognised by their content, not their declared type", () => {
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+  assert.equal(detectImageType(png), "image/png");
+  assert.equal(detectImageType(Buffer.from([0xff, 0xd8, 0xff, 0xe0])), "image/jpeg");
+  assert.equal(detectImageType(Buffer.from("GIF89a....")), "image/gif");
+  assert.equal(detectImageType(Buffer.concat([Buffer.from("RIFF"), Buffer.alloc(4), Buffer.from("WEBP")])), "image/webp");
+  assert.equal(detectImageType(Buffer.from("<svg onload=alert(1)>")), null);
+  assert.equal(detectImageType(Buffer.from("<html><script></script>")), null);
+});
+
+test("session cookie is read from the Cookie header", () => {
+  assert.equal(readSessionCookie({ headers: { cookie: "a=1; opticana_session=abc.def.ghi; b=2" } }), "abc.def.ghi");
+  assert.equal(readSessionCookie({ headers: { cookie: "other=1" } }), null);
+  assert.equal(readSessionCookie({ headers: {} }), null);
 });

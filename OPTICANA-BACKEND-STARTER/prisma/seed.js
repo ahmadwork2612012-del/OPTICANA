@@ -1,6 +1,7 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import prisma from "../src/lib/prisma.js";
+import { assertStrongPassword } from "../src/utils/passwordPolicy.js";
 
 const email = String(process.env.ADMIN_EMAIL || "").trim().toLowerCase();
 const password = String(process.env.ADMIN_PASSWORD || "");
@@ -9,9 +10,7 @@ const name = String(process.env.ADMIN_NAME || "OPTICANA Admin").trim();
 if (!email || !password) {
   throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD are required for a production-safe seed.");
 }
-if (password.length < 8) {
-  throw new Error("ADMIN_PASSWORD must be at least 8 characters.");
-}
+assertStrongPassword(password, { email, name });
 
 const passwordHash = await bcrypt.hash(password, 12);
 
