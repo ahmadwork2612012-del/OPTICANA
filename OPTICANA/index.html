@@ -8,6 +8,11 @@
     <link rel="icon" type="image/png" href="/opticana-icon.png" />
     <link rel="apple-touch-icon" href="/opticana-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Cairo is the font the styles ask for; without loading it every device
+         fell back to its own system font. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <!-- Installed to the home screen, the site opens full screen like an app. -->
     <meta name="theme-color" content="#fbfcfa" />
     <meta name="mobile-web-app-capable" content="yes" />

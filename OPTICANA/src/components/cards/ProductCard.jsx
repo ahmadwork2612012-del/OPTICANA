@@ -698,14 +698,6 @@ function ProductCard({
           )}
 
 
-          {/* FEATURED */}
-
-          {product.featured && (
-            <span className="absolute bottom-2.5 right-2.5 z-10 rounded-full bg-white/95 px-2 py-1 text-[9px] font-black text-[#4b5b45] shadow-sm backdrop-blur sm:bottom-4 sm:right-4 sm:px-3 sm:py-1.5 sm:text-[11px]">
-              مميز
-            </span>
-          )}
-
 
           {/* FAVORITE */}
 
@@ -852,6 +844,9 @@ function ProductCard({
             aria-label="تقييم المنتج"
           >
 
+            {/* Empty stars read as a bad rating, so they only show once
+                the product has been rated. */}
+            {rating > 0 && (
             <div className="flex items-center gap-0.5">
 
               {[
@@ -884,6 +879,7 @@ function ProductCard({
               )}
 
             </div>
+            )}
 
 
             <span className="text-[9px] font-bold text-[#899184] sm:text-[11px]">
@@ -897,7 +893,7 @@ function ProductCard({
                     ? rating.toFixed(
                         1
                       )
-                    : "بدون تقييم"}
+                    : "قيّم المنتج"}
 
 
                   {reviewCount >
@@ -956,8 +952,9 @@ function ProductCard({
           </div>
 
 
-          {/* STOCK */}
+          {/* STOCK (in stock is the normal case; only flag sold-out items) */}
 
+          {isOutOfStock && (
           <div className="mt-2 flex items-center gap-1.5 text-[9px] font-bold sm:mt-4 sm:gap-2">
 
             <Check
@@ -985,6 +982,7 @@ function ProductCard({
             </span>
 
           </div>
+          )}
 
 
           {/* ACTIONS */}

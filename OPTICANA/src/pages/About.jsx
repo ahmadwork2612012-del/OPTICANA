@@ -149,12 +149,12 @@ function About() {
 
   const vision =
     about.vision ||
-    "لم تتم إضافة رؤية المتجر بعد.";
+    "";
 
 
   const mission =
     about.mission ||
-    "لم تتم إضافة رسالة المتجر بعد.";
+    "";
 
 
   const features =
@@ -199,46 +199,11 @@ function About() {
         ];
 
 
+  // Only real figures entered from the dashboard are shown; without them the
+  // whole section is hidden instead of showing placeholder dashes.
   const stats =
-    Array.isArray(
-      about.stats
-    ) &&
-    about.stats.length > 0
-      ? about.stats
-      : [
-          {
-            id:
-              "stat-1",
-            value:
-              "—",
-            label:
-              "بيانات غير متاحة بعد",
-          },
-          {
-            id:
-              "stat-2",
-            value:
-              "—",
-            label:
-              "بيانات غير متاحة بعد",
-          },
-          {
-            id:
-              "stat-3",
-            value:
-              "—",
-            label:
-              "بيانات غير متاحة بعد",
-          },
-          {
-            id:
-              "stat-4",
-            value:
-              "—",
-            label:
-              "بيانات غير متاحة بعد",
-          },
-        ];
+    (Array.isArray(about.stats) ? about.stats : [])
+      .filter((stat) => String(stat?.value ?? "").trim() && String(stat.value).trim() !== "—");
 
 
   const storeName =
@@ -266,7 +231,7 @@ function About() {
         <div className="pointer-events-none absolute -left-28 bottom-0 h-72 w-72 rounded-full bg-[#eef1df] opacity-80 blur-3xl" />
 
 
-        <div className="relative mx-auto flex min-h-[62vh] max-w-7xl flex-col-reverse items-center justify-between gap-12 px-6 py-16 lg:flex-row lg:py-20">
+        <div className="relative mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-12 px-6 py-12 lg:min-h-[62vh] lg:flex-row lg:py-20">
 
 
           {/* TEXT */}
@@ -352,7 +317,8 @@ function About() {
               duration: 0.7,
               delay: 0.1,
             }}
-            className="w-full lg:w-[44%]"
+            // Without a photo, phones skip the logo card to keep the page short.
+            className={`w-full lg:w-[44%] ${image ? "" : "hidden lg:block"}`}
           >
 
             <div className="relative">
@@ -373,24 +339,12 @@ function About() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10 text-center">
-
-                    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white p-3 shadow-sm ring-1 ring-[#dfe6dc]">
-                      <img src="/opticana-mark.png" alt="" className="h-full w-full object-contain" />
-                    </div>
-
-
-                    <p className="mt-6 text-2xl font-black text-[#364132]">
-                      {
-                        storeName
-                      }
-                    </p>
-
-
-                    <p className="mt-2 text-sm font-bold text-[#788374]">
-                      أضف صورة قسم "من نحن" من إدارة المتجر
-                    </p>
-
+                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10">
+                    <img
+                      src={store?.logo || "/opticana-logo.png"}
+                      alt={storeName}
+                      className="h-auto w-[72%] max-w-[300px] object-contain drop-shadow-sm"
+                    />
                   </div>
                 )}
 
@@ -409,13 +363,15 @@ function About() {
           VISION / MISSION
       ===================================== */}
 
+      {(vision || mission) && (
       <section className="py-20 sm:py-24">
 
         <div className="mx-auto max-w-7xl px-6">
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className={`grid gap-6 ${vision && mission ? "lg:grid-cols-2" : ""}`}>
 
 
+            {vision && (
             <InfoCard
               icon={
                 Eye
@@ -426,8 +382,10 @@ function About() {
                 vision
               }
             />
+            )}
 
 
+            {mission && (
             <InfoCard
               icon={
                 Target
@@ -438,12 +396,14 @@ function About() {
                 mission
               }
             />
+            )}
 
           </div>
 
         </div>
 
       </section>
+      )}
 
 
       {/* =====================================
@@ -465,10 +425,6 @@ function About() {
                 storeName
               }؟
             </h2>
-
-            <p className="mt-3 text-sm leading-7 text-[#7d8879]">
-              هذه المزايا يتم التحكم بها بالكامل من إدارة المتجر.
-            </p>
 
           </div>
 
@@ -511,6 +467,7 @@ function About() {
           STATS
       ===================================== */}
 
+      {stats.length > 0 && (
       <section className="py-20">
 
         <div className="mx-auto max-w-7xl px-6">
@@ -528,10 +485,11 @@ function About() {
                   "OPTICANA بالأرقام"}
               </h2>
 
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">
-                {about.statsDescription ||
-                  "إحصائيات المتجر قابلة للتحديث من إدارة المتجر."}
-              </p>
+              {about.statsDescription && (
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">
+                  {about.statsDescription}
+                </p>
+              )}
 
             </div>
 
@@ -595,73 +553,9 @@ function About() {
         </div>
 
       </section>
+      )}
 
 
-      {/* =====================================
-          CTA
-      ===================================== */}
-
-      <section className="mx-auto max-w-7xl px-6 pb-24">
-
-        <div className="relative overflow-hidden rounded-[2.5rem] border border-[#dce5d8] bg-[#EFE8E2] p-8 sm:p-12">
-
-          <div className="absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[#B4C4AD]/50 blur-3xl" />
-
-
-          <div className="relative flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center">
-
-            <div className="max-w-2xl">
-
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B4C4AD] text-[#263024]">
-
-                <Heart
-                  size={22}
-                />
-
-              </div>
-
-
-              <h2 className="mt-5 text-3xl font-black text-[#263024] sm:text-4xl">
-                {
-                  about.ctaTitle ||
-                  storeName
-                }
-              </h2>
-
-
-              <p className="mt-3 text-sm leading-8 text-[#71806e]">
-                {
-                  about.ctaDescription ||
-                  slogan
-                }
-              </p>
-
-            </div>
-
-
-            <Link
-              to={
-                about.ctaLink ||
-                "/products"
-              }
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#B4C4AD] px-6 py-3.5 text-sm font-black text-white transition hover:bg-[#9ead97]"
-            >
-              {
-                about.ctaButtonText ||
-                "تسوق الآن"
-              }
-
-              <ArrowLeft
-                size={17}
-              />
-
-            </Link>
-
-          </div>
-
-        </div>
-
-      </section>
 
     </main>
   );
@@ -794,7 +688,7 @@ function FeatureCard({
       <p className="mt-2 text-xs leading-6 text-[#808a7d] sm:text-sm">
         {
           feature.description ||
-          "يمكن إضافة وصف هذه الميزة من إدارة المتجر."
+          ""
         }
       </p>
 

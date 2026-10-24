@@ -339,17 +339,33 @@ function Home() {
      NEW PRODUCTS
   ===================================== */
 
+  // Each product appears in one home section only, so a small catalogue does
+  // not show the same frames three times; a section with nothing left hides.
+  const featuredIds = new Set(
+    featuredProducts.map((product) => product.id)
+  );
+
   const recentProducts =
     products
       .filter(
         (product) =>
           product?.isNew ===
-          true
+          true &&
+          !featuredIds.has(product.id)
       )
       .slice(
         0,
         8
       );
+
+  const shownIds = new Set([
+    ...featuredIds,
+    ...recentProducts.map((product) => product.id),
+  ]);
+
+  const homeOffers = offers.filter(
+    (product) => !shownIds.has(product.id)
+  );
 
 
   return (
@@ -777,7 +793,7 @@ function Home() {
         <ProductSection
           eyebrow="وصل حديثًا"
           title="أحدث المنتجات"
-          description="منتجات جديدة منشورة من إدارة المتجر."
+          description="اكتشف آخر ما وصلنا من نظارات وعدسات."
           products={
             recentProducts
           }
@@ -793,7 +809,7 @@ function Home() {
       ===================================== */}
 
       {offersConfig.enabled &&
-        offers.length >
+        homeOffers.length >
           0 && (
           <section className="bg-[#EFE8E2] py-20">
 
@@ -828,7 +844,7 @@ function Home() {
 
               <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
 
-                {offers
+                {homeOffers
                   .slice(
                     0,
                     4
@@ -860,7 +876,8 @@ function Home() {
           REVIEWS
       ===================================== */}
 
-      {reviewsConfig.enabled && (
+      {/* Hidden until there is at least one approved review. */}
+      {reviewsConfig.enabled && reviews.length > 0 && (
         <section className="py-20">
 
           <div className="mx-auto max-w-7xl px-6">
@@ -1115,6 +1132,9 @@ function HorizontalCategories({
   const scrollRef =
     useRef(null);
 
+  const scrollable =
+    categories.length > 4;
+
 
   const scrollByAmount =
     (
@@ -1132,6 +1152,9 @@ function HorizontalCategories({
   return (
     <div className="relative mt-10">
 
+      {/* Arrows and edge fades only when there are more categories than fit. */}
+      {scrollable && (
+      <>
       {/* LEFT */}
 
       <button
@@ -1173,6 +1196,8 @@ function HorizontalCategories({
       <div className="pointer-events-none absolute left-0 top-0 z-10 hidden h-full w-16 bg-gradient-to-r from-[#fbfcfa] to-transparent lg:block" />
 
       <div className="pointer-events-none absolute right-0 top-0 z-10 hidden h-full w-16 bg-gradient-to-l from-[#fbfcfa] to-transparent lg:block" />
+      </>
+      )}
 
 
       {/* SCROLL */}

@@ -1,6 +1,5 @@
 import {
   ArrowLeft,
-  ShoppingBag,
   Sparkles,
   Tag,
 } from "lucide-react";
@@ -349,16 +348,6 @@ function Offers() {
           </div>
 
 
-          <div className="flex items-center gap-2 text-xs font-black text-[#63705f]">
-
-            <ShoppingBag
-              size={15}
-            />
-
-            البيانات محدثة من إدارة المتجر
-
-          </div>
-
         </div>
 
       </section>
@@ -447,54 +436,6 @@ function Offers() {
 
       </section>
 
-
-      {/* =====================================
-          BOTTOM CTA
-      ===================================== */}
-
-      <section className="mx-auto max-w-7xl px-6 pb-20">
-
-        <div className="overflow-hidden rounded-[2rem] bg-[#B4C4AD] p-7 text-white sm:p-10">
-
-          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-
-            <div>
-
-              <p className="text-xs font-black text-[#B4C4AD]">
-                OPTICANA
-              </p>
-
-
-              <h2 className="mt-2 text-2xl font-black">
-                ما لقيت اللي تدور عليه؟
-              </h2>
-
-
-              <p className="mt-2 text-sm leading-7 text-white/60">
-                تصفح المجموعة الكاملة من المنتجات المنشورة في المتجر.
-              </p>
-
-            </div>
-
-
-            <Link
-              to="/products"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3.5 text-sm font-black text-[#263024] transition hover:bg-[#c3d0bd]"
-            >
-
-              تصفح المنتجات
-
-              <ArrowLeft
-                size={17}
-              />
-
-            </Link>
-
-          </div>
-
-        </div>
-
-      </section>
 
     </main>
   );

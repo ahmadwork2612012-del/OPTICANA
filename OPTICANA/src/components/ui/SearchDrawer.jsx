@@ -400,7 +400,7 @@ function SearchDrawer({
 
 
               <p className="mt-2 text-sm leading-7 text-[#7d8879]">
-                البحث يعمل مباشرة على المنتجات المنشورة من إدارة المتجر.
+                ابحث باسم المنتج أو نوعه أو لونه.
               </p>
 
             </div>

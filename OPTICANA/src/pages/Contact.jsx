@@ -487,13 +487,10 @@ function Contact() {
 
 
                   <p className="mt-2 max-w-sm text-sm leading-7 text-[#7d8879]">
-                    لم تتم إضافة رابط الخريطة بعد.
+                    تواصلوا معنا عبر واتساب لمعرفة أقرب فرع.
                   </p>
 
 
-                  <p className="mt-4 text-xs font-bold text-[#9aa398]">
-                    يمكن إضافته من إدارة المتجر.
-                  </p>
 
                 </div>
               )}

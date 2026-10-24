@@ -1078,19 +1078,9 @@ function ProductDetails() {
               </h1>
 
 
-              {/* SKU */}
+              {/* RATING (only once the product has been rated) */}
 
-              <p className="mt-3 text-xs font-bold text-[#929b90]">
-                SKU:{" "}
-                {
-                  product.sku ||
-                  "غير مضاف"
-                }
-              </p>
-
-
-              {/* RATING */}
-
+              {(reviews.length > 0 || Number(product.rating || 0) > 0) && (
               <div className="mt-5 flex items-center gap-3">
 
                 <div className="flex gap-1">
@@ -1160,6 +1150,7 @@ function ProductDetails() {
                 </span>
 
               </div>
+              )}
 
 
               {/* PRICE */}
@@ -1220,7 +1211,8 @@ function ProductDetails() {
 
                   {/* TOTAL */}
 
-                  {!isOutOfStock && (
+                  {/* Only worth showing once more than one piece is selected. */}
+                  {!isOutOfStock && selectedTotal !== unitPrice && (
                     <div className="text-right">
 
                       <p className="text-xs font-bold text-[#8b9588]">
@@ -1264,12 +1256,11 @@ function ProductDetails() {
 
               {/* DESCRIPTION */}
 
-              <p className="mt-7 text-sm leading-8 text-[#6f796c]">
-                {
-                  product.description ||
-                  "لا يوجد وصف إضافي لهذا المنتج."
-                }
-              </p>
+              {product.description && (
+                <p className="mt-7 text-sm leading-8 text-[#6f796c]">
+                  {product.description}
+                </p>
+              )}
 
 
               {/* STOCK */}
@@ -1309,13 +1300,17 @@ function ProductDetails() {
                 </div>
 
 
-                <p className="mt-1 text-xs font-bold text-[#8b9588]">
-
-                  {isOutOfStock
-                    ? "سيظهر التوفر من إدارة المتجر عند تحديث المخزون."
-                    : `${stock} قطعة متاحة`}
-
-                </p>
+                {/* The exact stock count stays internal; customers only
+                    hear about it when few pieces are left. */}
+                {(isOutOfStock || stock <= 3) && (
+                  <p className="mt-1 text-xs font-bold text-[#8b9588]">
+                    {isOutOfStock
+                      ? "تواصلوا معنا عبر واتساب لمعرفة موعد توفره."
+                      : stock === 1
+                        ? "آخر قطعة متبقية"
+                        : `آخر ${stock} قطع متبقية`}
+                  </p>
+                )}
 
               </div>
 
@@ -1480,29 +1475,6 @@ ${product.name}
               </button>
 
 
-              {/* TRUST */}
-
-              <div className="mt-8 grid grid-cols-2 gap-3">
-
-                <TrustItem
-                  icon={
-                    Check
-                  }
-                  title="منتج منشور"
-                  text="من إدارة المتجر"
-                />
-
-
-                <TrustItem
-                  icon={
-                    Package
-                  }
-                  title="مخزون مباشر"
-                  text="حسب المتوفر"
-                />
-
-              </div>
-
             </div>
 
           </div>
@@ -1584,19 +1556,11 @@ ${product.name}
 
 
               <SpecRow
-                label="رقم المنتج"
-                value={
-                  product.sku
-                }
-              />
-
-
-              <SpecRow
-                label="المخزون"
+                label="التوفر"
                 value={
                   isOutOfStock
                     ? "غير متوفر"
-                    : `${stock} قطعة`
+                    : "متوفر"
                 }
                 danger={
                   isOutOfStock
@@ -1616,6 +1580,8 @@ ${product.name}
           REVIEWS
       ===================================== */}
 
+      {/* Hidden until the product has at least one approved review. */}
+      {reviews.length > 0 && (
       <section className="border-y border-[#e2e7df] bg-[#f2f5ef] py-20">
 
         <div className="mx-auto max-w-7xl px-6">
@@ -1801,6 +1767,7 @@ ${product.name}
         </div>
 
       </section>
+      )}
 
 
       {/* =====================================
@@ -1865,56 +1832,46 @@ ${product.name}
         </section>
       )}
 
+
+      {/* =====================================
+          MOBILE BUY BAR
+          Keeps price and "add to cart" in reach on phones, sitting just
+          above the bottom tab bar.
+      ===================================== */}
+
+      {!isOutOfStock && (
+        <>
+          <div aria-hidden="true" className="h-[76px] lg:hidden" />
+
+          <div className="fixed inset-x-0 bottom-[calc(68px+env(safe-area-inset-bottom))] z-30 border-t border-[#e2e7df] bg-white/95 px-4 py-3 backdrop-blur-xl lg:hidden">
+            <div className="mx-auto flex max-w-md items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-bold text-[#7d8779]">
+                  {product.name}
+                </p>
+                <p className="text-lg font-black text-[#263024]">
+                  {selectedTotal.toLocaleString()} {currency}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] px-6 text-sm font-black text-white transition hover:bg-[#9ead97]"
+              >
+                <ShoppingCart size={18} />
+                أضف للسلة
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
     </main>
   );
 }
 
 
-/* =====================================
-   TRUST ITEM
-===================================== */
-
-function TrustItem({
-  icon: Icon,
-  title,
-  text,
-}) {
-  return (
-    <div className="rounded-xl border border-[#dfe6dc] bg-white p-4">
-
-      <div className="flex items-center gap-3">
-
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EFE8E2] text-[#60705b]">
-
-          <Icon
-            size={16}
-          />
-
-        </div>
-
-
-        <div>
-
-          <p className="text-xs font-black text-[#354031]">
-            {
-              title
-            }
-          </p>
-
-
-          <p className="mt-0.5 text-[10px] font-bold text-[#909990]">
-            {
-              text
-            }
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-  );
-}
 
 
 /* =====================================

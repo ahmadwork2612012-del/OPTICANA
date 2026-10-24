@@ -298,10 +298,11 @@ function Footer() {
                   MapPin
                 }
                 label="العنوان"
+                // Skipped when the footer bio above already lists the address.
                 value={
-                  display(
-                    address
-                  )
+                  address && String(store?.footerDescription || "").includes(address.split("•")[0].trim())
+                    ? ""
+                    : display(address)
                 }
               />
 
