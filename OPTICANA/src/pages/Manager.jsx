@@ -42,9 +42,27 @@ import {
   updateManagerStoreContent,
   updateManagerStoreSetting,
   updateManagerProduct,
+  updateManagerOrderStatus,
   updateManagerReviewStatus,
   uploadManagerImage,
 } from "../services/managerApi";
+
+const ORDER_STATUS_LABELS = {
+  PENDING: { ar: "بانتظار التأكيد", en: "Pending" },
+  CONFIRMED: { ar: "مؤكد", en: "Confirmed" },
+  PREPARING: { ar: "قيد التجهيز", en: "Preparing" },
+  READY: { ar: "جاهز", en: "Ready" },
+  COMPLETED: { ar: "مكتمل", en: "Completed" },
+  CANCELLED: { ar: "ملغي", en: "Cancelled" },
+};
+
+// Mirrors the allowed transitions in the API's order service.
+const NEXT_ORDER_STATUS = {
+  PENDING: { status: "CONFIRMED", ar: "تأكيد الطلب", en: "Confirm order" },
+  CONFIRMED: { status: "PREPARING", ar: "بدء التجهيز", en: "Start preparing" },
+  PREPARING: { status: "READY", ar: "جاهز للتسليم", en: "Mark ready" },
+  READY: { status: "COMPLETED", ar: "تم التسليم", en: "Mark delivered" },
+};
 
 // Images are compressed in the browser and uploaded directly to storage, so
 // this only guards against unreasonably large source files.
@@ -164,6 +182,29 @@ function Manager() {
   useEffect(() => {
     if (session) load();
   }, [session, load]);
+
+  const [orderUpdating, setOrderUpdating] = useState(null);
+
+  // Confirming a storefront order is what deducts its stock, so reload
+  // products as well as orders afterwards.
+  const changeOrderStatus = async (order, status) => {
+    const label = ORDER_STATUS_LABELS[status]?.[isEnglish ? "en" : "ar"] || status;
+    const question = status === "CANCELLED"
+      ? (isEnglish ? `Cancel order ${order.orderNumber}?` : `إلغاء الطلب ${order.orderNumber}؟`)
+      : (isEnglish ? `Change order ${order.orderNumber} to "${label}"?` : `تغيير حالة الطلب ${order.orderNumber} إلى "${label}"؟`);
+    if (!window.confirm(question)) return;
+
+    setOrderUpdating(order.id);
+    try {
+      await updateManagerOrderStatus(order.id, status);
+      toast.success(isEnglish ? "Order updated" : "تم تحديث الطلب");
+      await load();
+    } catch (error) {
+      toast.error(error?.message || t("تعذر تنفيذ العملية"));
+    } finally {
+      setOrderUpdating(null);
+    }
+  };
 
   const filteredProducts = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -793,7 +834,7 @@ function Manager() {
         {activePanel === "orders" && (
           <section className="overflow-hidden rounded-[28px] border border-[#dfe6dc] bg-white shadow-sm">
             <div className="flex flex-col gap-4 border-b border-[#EFE8E2] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7"><div><p className="text-sm font-black text-[#6d7869]">{t("متابعة سريعة")}</p><h1 className="mt-1 text-3xl font-black">{t("طلبات المتجر")}</h1><p className="mt-2 text-sm text-[#7a8378]">{t("الرقم الظاهر هو رقم العميل الذي أدخله عند فتح طلب واتساب.")}</p></div><select value={ordersRange} onChange={(e) => setOrdersRange(e.target.value)} className={`${inputClass} max-w-52`}><option value="24h">{t("آخر 24 ساعة")}</option><option value="all">{t("كل الطلبات السابقة")}</option></select></div>
-            {loading ? <div className="p-8 text-center text-sm text-[#7a8378]">{t("جاري تحميل الطلبات...")}</div> : orders.length ? <div className="divide-y divide-[#EFE8E2]">{orders.map((order) => <article key={order.id} className="p-5 sm:p-6"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><div className="flex flex-wrap items-center gap-2"><h2 className="font-black">{order.orderNumber}</h2><span className="rounded-full bg-[#EFE8E2] px-2.5 py-1 text-[10px] font-black text-[#5d6c59]">{order.status}</span></div><p className="mt-2 text-sm font-bold text-[#4e5b4b]">{order.customer?.name || t("عميل غير معروف")} · {order.customer?.phone || t("لم يُدخل رقمًا")}</p><p className="mt-1 text-xs text-[#849080]">{new Date(order.createdAt).toLocaleString(isEnglish ? "en-EG" : "ar-EG")}</p></div><p className="text-lg font-black">{Number(order.total || 0).toLocaleString(isEnglish ? "en-EG" : "ar-EG")} {order.currency || "ج.م"}</p></div><div className="mt-4 flex flex-wrap gap-2">{order.items.map((item) => <span key={item.id} className="rounded-xl bg-[#EFE8E2] px-3 py-2 text-xs font-bold text-[#596555]">{item.name} × {item.quantity}</span>)}</div></article>)}</div> : <div className="p-12 text-center text-sm text-[#7a8378]">{ordersRange === "24h" ? t("لا توجد طلبات في آخر 24 ساعة") : t("لا توجد طلبات حتى الآن")}</div>}
+            {loading ? <div className="p-8 text-center text-sm text-[#7a8378]">{t("جاري تحميل الطلبات...")}</div> : orders.length ? <div className="divide-y divide-[#EFE8E2]">{orders.map((order) => <article key={order.id} className="p-5 sm:p-6"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><div className="flex flex-wrap items-center gap-2"><h2 className="font-black">{order.orderNumber}</h2><span className="rounded-full bg-[#EFE8E2] px-2.5 py-1 text-[10px] font-black text-[#5d6c59]">{ORDER_STATUS_LABELS[order.status]?.[isEnglish ? "en" : "ar"] || order.status}</span></div><p className="mt-2 text-sm font-bold text-[#4e5b4b]">{order.customer?.name || t("عميل غير معروف")} · {order.customer?.phone || t("لم يُدخل رقمًا")}</p><p className="mt-1 text-xs text-[#849080]">{new Date(order.createdAt).toLocaleString(isEnglish ? "en-EG" : "ar-EG")}</p></div><p className="text-lg font-black">{Number(order.total || 0).toLocaleString(isEnglish ? "en-EG" : "ar-EG")} {order.currency || "ج.م"}</p></div><div className="mt-4 flex flex-wrap gap-2">{order.items.map((item) => <span key={item.id} className="rounded-xl bg-[#EFE8E2] px-3 py-2 text-xs font-bold text-[#596555]">{item.name} × {item.quantity}</span>)}</div><OrderActions order={order} busy={orderUpdating === order.id} onChange={changeOrderStatus} isEnglish={isEnglish} /></article>)}</div> : <div className="p-12 text-center text-sm text-[#7a8378]">{ordersRange === "24h" ? t("لا توجد طلبات في آخر 24 ساعة") : t("لا توجد طلبات حتى الآن")}</div>}
           </section>
         )}
 
@@ -854,6 +895,21 @@ function StoreInput({ label, value, onChange, type = "text", placeholder = "" })
 
 function StoreTextarea({ label, value, onChange }) {
   return <Field label={label}><textarea value={value} onChange={(event) => onChange(event.target.value)} className={`${inputClass} min-h-28 py-3`} /></Field>;
+}
+
+function OrderActions({ order, busy, onChange, isEnglish }) {
+  const next = NEXT_ORDER_STATUS[order.status];
+  if (!next) return null;
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      <button type="button" disabled={busy} onClick={() => onChange(order, next.status)} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#B4C4AD] px-4 text-xs font-black text-white disabled:opacity-50">
+        <Check size={15} />{isEnglish ? next.en : next.ar}
+      </button>
+      <button type="button" disabled={busy} onClick={() => onChange(order, "CANCELLED")} className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#e6d6d2] bg-white px-4 text-xs font-black text-[#8a594f] disabled:opacity-50">
+        <X size={15} />{isEnglish ? "Cancel order" : "إلغاء الطلب"}
+      </button>
+    </div>
+  );
 }
 
 export default Manager;

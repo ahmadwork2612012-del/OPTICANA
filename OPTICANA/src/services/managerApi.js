@@ -207,6 +207,13 @@ export async function getManagerRecentOrders(range = "24h") {
   return Array.isArray(orders) ? orders : [];
 }
 
+export async function updateManagerOrderStatus(id, status) {
+  return request(`/admin/orders/${encodeURIComponent(id)}/status`, {
+    method: "PATCH",
+    body: { status },
+  });
+}
+
 function slugify(value = "") {
   const slug = String(value).trim().toLowerCase()
     .replace(/[^\u0600-\u06FF\w\s-]/g, "")

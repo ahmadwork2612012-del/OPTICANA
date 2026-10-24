@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const submitReviewSchema = z.object({
-  productId: z.string().min(1),
+  productId: z.string().min(1).max(64),
   rating: z.number().int().min(1).max(5),
-  comment: z.string().optional(),
+  comment: z.string().trim().max(1000).optional(),
 });
 
 export const updateReviewStatusSchema = z.object({

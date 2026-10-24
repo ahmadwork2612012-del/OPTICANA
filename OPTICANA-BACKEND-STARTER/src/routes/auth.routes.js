@@ -20,7 +20,20 @@ const router = Router();
   في مرحلة User Management لاحقًا.
 */
 
-router.post("/login", rateLimit({ windowMs: 60_000, max: 10, message: "محاولات تسجيل الدخول كثيرة، حاول لاحقًا" }), async (req, res, next) => {
+const LOGIN_RATE_MESSAGE = "محاولات تسجيل الدخول كثيرة، حاول لاحقًا";
+
+router.post(
+  "/login",
+  rateLimit({ windowMs: 60_000, max: 10, message: LOGIN_RATE_MESSAGE }),
+  // Also cap attempts per account, so guesses spread across many IPs
+  // still run into a limit.
+  rateLimit({
+    windowMs: 15 * 60_000,
+    max: 30,
+    message: LOGIN_RATE_MESSAGE,
+    keyBy: (req) => String(req.body?.email || "").trim().toLowerCase().slice(0, 254) || null,
+  }),
+  async (req, res, next) => {
   try {
     const { email, password } = req.body;
 

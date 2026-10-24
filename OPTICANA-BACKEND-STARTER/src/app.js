@@ -64,21 +64,35 @@ app.use(
 ===================================== */
 
 /*
-  Product images are uploaded directly from the browser to R2 storage. The
-  JSON limit only matters for the local-disk fallback used in development.
+  Product images are uploaded directly from the browser to R2 storage, so
+  public endpoints only ever receive small JSON bodies. Authenticated staff
+  routes keep a larger limit for the local-disk image fallback used in
+  development (base64 images inside JSON). A body parsed by the first
+  matching parser is skipped by the later ones.
 */
+
+const STAFF_BODY_LIMIT = "15mb";
+const PUBLIC_BODY_LIMIT = "100kb";
+
+app.use(
+  ["/api/admin", "/api/categories/admin"],
+  express.json({
+    limit: STAFF_BODY_LIMIT,
+  })
+);
+
 
 app.use(
   express.json({
-    limit: "25mb",
+    limit: PUBLIC_BODY_LIMIT,
   })
 );
 
 
 app.use(
   express.urlencoded({
-    extended: true,
-    limit: "25mb",
+    extended: false,
+    limit: PUBLIC_BODY_LIMIT,
   })
 );
 

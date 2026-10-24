@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { rateLimit } from "../middleware/rateLimit.js";
 
 import {
   requireAuth,
@@ -23,6 +24,7 @@ const router = Router();
 // Submit a review
 router.post(
   "/",
+  rateLimit({ windowMs: 10 * 60_000, max: 5, message: "تقييمات كثيرة، حاول بعد قليل" }),
   publicSubmitReview
 );
 

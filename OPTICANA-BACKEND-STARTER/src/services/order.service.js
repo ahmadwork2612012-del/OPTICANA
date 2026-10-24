@@ -753,51 +753,39 @@ export async function createOrder(
 
         /* -----------------------------------------
            Apply stock
+
+           Storefront orders are unverified requests, so
+           their stock is reserved only when staff confirm
+           them (see updateOrderStatus). Staff/POS orders
+           apply stock immediately.
         ----------------------------------------- */
 
-        for (
-          const item of
-            preparedItems
-        ) {
-          await changeStock({
+        const isStoreOrder =
+          String(source || "").toLowerCase() === "store";
+
+        if (!isStoreOrder) {
+          await applyOrderStock(
             tx,
+            createdOrder.orderNumber,
+            preparedItems,
+            userId
+          );
 
-            productId:
-              item.productId,
+          await tx.order.update({
+            where: {
+              id:
+                createdOrder.id,
+            },
 
-            quantity:
-              -item.quantity,
-
-            type:
-              "SALE",
-
-            userId:
-              userId || null,
-
-            note:
-              `Order ${createdOrder.orderNumber}`,
+            data: {
+              stockApplied:
+                true,
+              ...(String(source || "").toLowerCase() === "pos"
+                ? { status: "COMPLETED" }
+                : {}),
+            },
           });
         }
-
-
-        /* -----------------------------------------
-           Mark stock as applied
-        ----------------------------------------- */
-
-        await tx.order.update({
-          where: {
-            id:
-              createdOrder.id,
-          },
-
-          data: {
-            stockApplied:
-              true,
-            ...(String(source || "").toLowerCase() === "pos"
-              ? { status: "COMPLETED" }
-              : {}),
-          },
-        });
 
         if (normalizedInitialPayment > 0) {
           await recordPayment({
@@ -847,6 +835,27 @@ export async function createOrder(
   return serializeOrder(
     order
   );
+}
+
+
+async function applyOrderStock(
+  tx,
+  orderNumber,
+  items,
+  userId
+) {
+  for (const item of items) {
+    if (!item.productId) continue;
+
+    await changeStock({
+      tx,
+      productId: item.productId,
+      quantity: -item.quantity,
+      type: "SALE",
+      userId: userId || null,
+      note: `Order ${orderNumber}`,
+    });
+  }
 }
 
 
@@ -1110,6 +1119,24 @@ export async function updateOrderStatus(
         }
 
 
+        /*
+          Storefront orders reserve stock on their
+          first move out of PENDING. changeStock
+          rejects the transition if stock ran out.
+        */
+
+        const applyStockNow =
+          !order.stockApplied;
+
+        if (applyStockNow) {
+          await applyOrderStock(
+            tx,
+            order.orderNumber,
+            order.items,
+            userId
+          );
+        }
+
         const updatedOrder =
           await tx.order.update({
             where: {
@@ -1118,6 +1145,9 @@ export async function updateOrderStatus(
 
             data: {
               status,
+              ...(applyStockNow
+                ? { stockApplied: true }
+                : {}),
             },
           });
 

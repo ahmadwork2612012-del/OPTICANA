@@ -3,10 +3,18 @@ import { createOrder } from "../services/order.service.js";
 
 export async function publicCreateOrder(req, res, next) {
   try {
+    const body = req.body || {};
+
+    // Visitors only choose what they order and how to reach them. Pricing,
+    // discounts, payments, due dates and links to existing customer records
+    // are staff decisions, so those fields are never taken from the request.
     const parsed = createOrderSchema.safeParse({
-      ...req.body,
+      customer: body.customer,
+      items: body.items,
+      notes: typeof body.notes === "string" ? body.notes.slice(0, 1000) : undefined,
       source: "store",
-      paymentMethod: req.body?.paymentMethod || "WHATSAPP",
+      paymentMethod: "WHATSAPP",
+      discount: 0,
     });
 
     if (!parsed.success) {

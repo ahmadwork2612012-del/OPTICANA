@@ -1,3 +1,5 @@
+import { getClientIp } from "../utils/clientIp.js";
+
 const buckets = new Map();
 const MAX_BUCKETS = 10_000;
 
@@ -8,9 +10,14 @@ function pruneExpiredBuckets(now) {
   }
 }
 
-export function rateLimit({ windowMs = 60_000, max = 60, message = "Too many requests" } = {}) {
+export function rateLimit({ windowMs = 60_000, max = 60, message = "Too many requests", keyBy = null } = {}) {
   return (req, res, next) => {
-    const key = `${req.ip || req.socket.remoteAddress || "unknown"}:${req.baseUrl || ""}:${req.path || ""}`;
+    const scope = `${req.baseUrl || ""}:${req.path || ""}`;
+    // keyBy lets a route limit by something other than the IP (e.g. the
+    // account being logged into); returning null skips this limiter.
+    const custom = keyBy ? keyBy(req) : undefined;
+    if (keyBy && !custom) return next();
+    const key = keyBy ? `custom:${custom}:${scope}` : `${getClientIp(req)}:${scope}`;
     const now = Date.now();
     const current = buckets.get(key);
 

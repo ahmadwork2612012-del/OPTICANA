@@ -7,6 +7,8 @@ import { createProductSchema } from "../src/validators/product.validator.js";
 import { assertRoleAssignment } from "../src/services/auth.service.js";
 import { changeStock } from "../src/services/inventory.service.js";
 import { rateLimit } from "../src/middleware/rateLimit.js";
+import { getClientIp } from "../src/utils/clientIp.js";
+import { submitReviewSchema } from "../src/validators/review.validator.js";
 
 test("authentication passwords are salted and verify only their original value", async () => {
   const hash = await hashPassword("A-strong-password-2026");
@@ -73,4 +75,33 @@ test("rate limit rejects excessive requests from the same client", () => {
   middleware(req, res, next);
   assert.equal(nextCalls, 1);
   assert.equal(res.body.error.code, "RATE_LIMITED");
+});
+
+test("client IP trusts CF-Connecting-IP only from Cloudflare addresses", () => {
+  const fromCloudflare = { headers: { "cf-connecting-ip": "203.0.113.7" }, socket: { remoteAddress: "::ffff:172.70.1.1" } };
+  assert.equal(getClientIp(fromCloudflare), "203.0.113.7");
+
+  const spoofed = { headers: { "cf-connecting-ip": "203.0.113.7" }, socket: { remoteAddress: "198.51.100.9" } };
+  assert.equal(getClientIp(spoofed), "198.51.100.9");
+});
+
+test("login attempts are also limited per account across IPs", () => {
+  const middleware = rateLimit({ windowMs: 60_000, max: 2, keyBy: (req) => req.body.email });
+  let nextCalls = 0;
+  const next = () => { nextCalls += 1; };
+  const res = { set: () => res, status: () => res, json: (body) => { res.body = body; return res; } };
+  for (const ip of ["198.51.100.1", "198.51.100.2", "198.51.100.3"]) {
+    middleware({ headers: {}, socket: { remoteAddress: ip }, body: { email: "admin@test" }, baseUrl: "/api/auth", path: "/login-per-account" }, res, next);
+  }
+  assert.equal(nextCalls, 2);
+  assert.equal(res.body.error.code, "RATE_LIMITED");
+});
+
+test("public orders and reviews reject oversized input", () => {
+  const item = { productId: "p1", quantity: 1 };
+  assert.equal(createOrderSchema.safeParse({ items: Array(51).fill(item) }).success, false);
+  assert.equal(createOrderSchema.safeParse({ items: [{ productId: "p1", quantity: 101 }] }).success, false);
+  assert.equal(createOrderSchema.safeParse({ items: [item], notes: "x".repeat(1001) }).success, false);
+  assert.equal(submitReviewSchema.safeParse({ productId: "p1", rating: 5, comment: "x".repeat(1001) }).success, false);
+  assert.equal(submitReviewSchema.safeParse({ productId: "p1", rating: 5, comment: "ممتاز" }).success, true);
 });
