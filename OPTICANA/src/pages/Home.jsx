@@ -431,25 +431,7 @@ function Home() {
 
               <div className="max-w-2xl">
 
-                <img
-                  src={store?.logo || "/opticana-logo.png"}
-                  alt={store?.name || "OPTICANA"}
-                  className="mb-5 h-14 w-auto max-w-[190px] object-contain rtl:object-right ltr:object-left"
-                />
-
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#d6e0d2] bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#596755]">
-
-                  <Sparkles
-                    size={14}
-                  />
-
-                  {store?.slogan ||
-                    "عيونك أحلى معانا"}
-
-                </span>
-
-
-                <h1 className="mt-7 text-5xl font-black leading-[1.15] tracking-tight text-[#20251f] sm:text-6xl lg:text-7xl">
+                <h1 className="text-5xl font-black leading-[1.15] tracking-tight text-[#20251f] sm:text-6xl lg:text-7xl">
                   {
                     hero.title
                   }
