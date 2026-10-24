@@ -1,3 +1,4 @@
+import { BUSINESS_DEFAULTS, FOOTER_DEFAULTS, withDefaults } from "../config/storeDefaults";
 import {
   Check,
   ChevronDown,
@@ -107,11 +108,11 @@ function makeCategorySlug(value = "") {
 function makeStoreForm(data = {}) {
   const settings = data.settings || {};
   const content = data.content || {};
-  const business = settings.business || {};
+  const business = withDefaults(settings.business, BUSINESS_DEFAULTS);
   const general = settings.general || {};
   const contact = content.contact || {};
   const about = content.about || {};
-  const footer = content.footer || {};
+  const footer = withDefaults(content.footer, FOOTER_DEFAULTS);
   const home = content.home || {};
   const hero = home.hero || {};
   return {

@@ -1,3 +1,4 @@
+import { BUSINESS_DEFAULTS, FOOTER_DEFAULTS, withDefaults } from "../config/storeDefaults";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "/api";
@@ -69,11 +70,11 @@ export async function getStoreInfo() {
     getStoreContent(),
     getStoreSettings(),
   ]);
-  const business = settings.business || {};
+  const business = withDefaults(settings.business, BUSINESS_DEFAULTS);
   const general = settings.general || {};
   const appearance = settings.appearance || settings.branding || {};
   const contact = content.contact || {};
-  const footer = content.footer || {};
+  const footer = withDefaults(content.footer, FOOTER_DEFAULTS);
   const seo = content.seo || settings.seo || {};
   return {
     name: general.storeName || business.storeName || "OPTICANA",
