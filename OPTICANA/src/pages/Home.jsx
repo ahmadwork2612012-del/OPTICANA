@@ -566,11 +566,12 @@ function Home() {
 
             {/* HERO IMAGE */}
 
-            {/* Without a hero photo, phones skip the logo card: the text
-                block right below already shows the logo. */}
+            {/* A real hero photo gets the wide column. Without one, the logo
+                card stays small, and phones skip it (the text block already
+                shows the logo). */}
             <Reveal
               delay={0.15}
-              className={`w-full lg:w-[44%] ${hero.image ? "" : "hidden lg:block"}`}
+              className={`w-full ${hero.image ? "lg:w-[44%]" : "hidden lg:block lg:w-[300px]"}`}
             >
 
               <div className="relative">
@@ -596,11 +597,14 @@ function Home() {
                     ) : (
                       <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#EFE8E2] via-white to-[#dfe8db] p-10 text-center">
 
-                        <img
-                          src={store?.logo || "/opticana-logo.png"}
-                          alt={store?.name || "OPTICANA"}
-                          className="h-auto w-[72%] max-w-[300px] object-contain drop-shadow-sm"
-                        />
+                        <div>
+                          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-white p-3.5 shadow-sm ring-1 ring-[#dfe6dc]">
+                            <img src={store?.mark || "/opticana-mark.png"} alt="" className="h-full w-full object-contain" />
+                          </div>
+                          <p className="mt-5 text-2xl font-black tracking-[0.08em] text-[#364132]">
+                            {store?.name || "OPTICANA"}
+                          </p>
+                        </div>
 
                       </div>
                     )}
