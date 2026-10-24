@@ -199,6 +199,7 @@ const translations = {
   "تواصل سريع": "Quick Contact",
   "كل روابطنا": "All our links",
   "بحث": "Search",
+  "راسلنا مباشرة": "Message us directly",
   "التوفر": "Availability",
   "قيّم المنتج": "Rate this product",
   "آخر قطعة متبقية": "Last piece left",

@@ -1,4 +1,5 @@
 import {
+  Clock,
   Mail,
   MapPin,
   MessageCircle,
@@ -290,6 +291,25 @@ function Footer() {
 
               <FooterContactItem
                 icon={
+                  MessageCircle
+                }
+                label="واتساب"
+                value={
+                  whatsapp
+                    ? "راسلنا مباشرة"
+                    : ""
+                }
+                href={
+                  whatsapp
+                    ? `https://wa.me/${whatsapp}`
+                    : undefined
+                }
+                external
+              />
+
+
+              <FooterContactItem
+                icon={
                   Mail
                 }
                 label="البريد الإلكتروني"
@@ -322,7 +342,7 @@ function Footer() {
 
               <FooterContactItem
                 icon={
-                  MessageCircle
+                  Clock
                 }
                 label="ساعات العمل"
                 value={
@@ -333,30 +353,6 @@ function Footer() {
               />
 
             </div>
-
-
-            {/* Quick WhatsApp sits with the other contact details. */}
-
-            {whatsapp && (
-              <div className="mt-7">
-                <a
-                  href={`https://wa.me/${whatsapp}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-3.5 text-sm font-black text-[#263024] transition hover:bg-[#c3d0bd]"
-                >
-                  <MessageCircle
-                    size={18}
-                  />
-
-                  واتساب
-                </a>
-
-                <p className="mt-3 max-w-xs text-sm leading-7 text-[#969f93]">
-                  للاستفسارات أو طلب المنتجات مباشرة، يمكنك التواصل معنا عبر واتساب.
-                </p>
-              </div>
-            )}
 
           </div>
 
@@ -449,6 +445,7 @@ function FooterContactItem({
   label,
   value,
   href,
+  external = false,
 }) {
   if (!value) {
     return null;
@@ -491,6 +488,7 @@ function FooterContactItem({
       href={
         href
       }
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       className="block transition hover:opacity-80"
     >
       {content}
