@@ -30,7 +30,7 @@ const DEFAULT_CONTENT = {
     faq:{enabled:true,title:"الأسئلة الشائعة",description:"إجابات سريعة عن أكثر الأسئلة شيوعًا.",items:[]},
     cta:{enabled:true,title:"جاهز تختار نظارتك الجديدة؟",description:"اكتشف تشكيلتنا وتسوق الآن.",buttonText:"تسوق الآن",buttonLink:"/products"},
   },
-  about:{},contact:{},faq:{},footer:{enabled:true,description:"",quickLinks:[],socialLinks:{}},
+  about:{},contact:{},faq:{},footer:{enabled:true,quickLinks:[],socialLinks:{}},
   maintenance:{enabled:false,title:"المتجر تحت الصيانة",description:"نعمل حاليًا على تطوير المتجر. سنعود قريبًا.",image:null,showLogo:true,buttonEnabled:true,buttonText:"تواصل معنا",buttonLink:"/contact"},
   seo:{title:"OPTICANA | عيونك أحلى معانا",description:"",keywords:"",socialImage:null},banners:[],
 };
