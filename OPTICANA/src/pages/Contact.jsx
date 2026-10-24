@@ -231,16 +231,9 @@ function Contact() {
     "";
 
 
-  /* =====================================
-     DISPLAY HELPERS
-  ===================================== */
-
-  const displayValue = (
-    value
-  ) =>
-    value?.trim()
-      ? value
-      : "لم تتم الإضافة بعد";
+  const branches =
+    store?.branches ||
+    [];
 
 
   const hasWhatsapp =
@@ -313,145 +306,95 @@ function Contact() {
 
 
             {/* =================================
-                CONTACT CARDS
+                CONTACT DETAILS (one card beside the map)
             ================================= */}
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-5">
+            <div className="flex flex-col rounded-[2rem] border border-[#dfe6dc] bg-white p-6 shadow-sm sm:p-8">
 
+              <h2 className="text-xl font-black text-[#263024]">
+                معلومات التواصل
+              </h2>
 
-              {/* PHONE */}
+              <div className="mt-5 divide-y divide-[#EFE8E2]">
 
-              <ContactCard
-                icon={
-                  Phone
-                }
-                title="الهاتف"
-                value={
-                  <bdi dir="ltr">
-                    {phone}
-                  </bdi>
-                }
-                href={
-                  phone
-                    ? `tel:${phone.replace(/[^\d+]/g, "")}`
-                    : undefined
-                }
-                muted={
-                  !phone
-                }
-              />
+                <ContactRow
+                  icon={Phone}
+                  label="الهاتف"
+                  value={phone ? <bdi dir="ltr">{phone}</bdi> : ""}
+                  href={phone ? `tel:${phone.replace(/[^d+]/g, "")}` : undefined}
+                />
 
+                <ContactRow
+                  icon={MessageCircle}
+                  label="واتساب"
+                  value={hasWhatsapp ? "تواصل معنا مباشرة" : ""}
+                  href={hasWhatsapp ? `https://wa.me/${whatsapp}` : undefined}
+                  external
+                />
 
-              {/* WHATSAPP */}
+                <ContactRow
+                  icon={Mail}
+                  label="البريد الإلكتروني"
+                  value={email}
+                  href={email ? `mailto:${email}` : undefined}
+                />
 
-              <ContactCard
-                icon={
-                  MessageCircle
-                }
-                title="واتساب"
-                value={
-                  hasWhatsapp
-                    ? "تواصل معنا مباشرة"
-                    : "لم تتم الإضافة بعد"
-                }
-                href={
-                  hasWhatsapp
-                    ? `https://wa.me/${whatsapp}`
-                    : undefined
-                }
-                external={
-                  hasWhatsapp
-                }
-                muted={
-                  !hasWhatsapp
-                }
-              />
-
-
-              {/* EMAIL */}
-
-              <ContactCard
-                icon={
-                  Mail
-                }
-                title="البريد الإلكتروني"
-                value={
-                  displayValue(
-                    email
-                  )
-                }
-                href={
-                  email
-                    ? `mailto:${email}`
-                    : undefined
-                }
-                muted={
-                  !email
-                }
-              />
-
-
-              {/* WORKING HOURS */}
-
-              <ContactCard
-                icon={
-                  Clock
-                }
-                title="ساعات العمل"
-                value={
-                  displayValue(
-                    workingHours
-                  )
-                }
-                muted={
-                  !workingHours
-                }
-              />
-
-
-              {/* ADDRESS */}
-
-              <div className="col-span-2 rounded-[1.75rem] border border-[#dfe6dc] bg-white p-6 shadow-sm sm:p-7">
-
-                <div className="flex items-start gap-4">
-
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#63715f]">
-                    <MapPin
-                      size={
-                        20
-                      }
-                    />
-                  </div>
-
-
-                  <div className="min-w-0">
-
-                    <p className="text-sm font-black text-[#30392e]">
-                      عنوان المحل
-                    </p>
-
-
-                    <p
-                      className={`mt-2 text-sm leading-7 ${
-                        address
-                          ? "text-[#7a8578]"
-                          : "text-[#a0a99e]"
-                      }`}
-                    >
-                      {
-                        displayValue(
-                          address
-                        )
-                      }
-                    </p>
-
-                  </div>
-
-                </div>
+                <ContactRow
+                  icon={Clock}
+                  label="ساعات العمل"
+                  value={workingHours}
+                />
 
               </div>
 
+
+              {/* Branches: each one opens its own place on Google Maps. */}
+
+              {branches.length > 0 ? (
+                <>
+                  <h3 className="mt-7 text-sm font-black text-[#687565]">
+                    فروعنا
+                  </h3>
+
+                  <div className="mt-3 space-y-3">
+                    {branches.map((branch, index) => (
+                      <a
+                        key={index}
+                        href={branch.mapUrl || undefined}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group flex items-center gap-4 rounded-2xl border border-[#e3e9e0] bg-[#fbfcfa] p-4 transition hover:border-[#B4C4AD] hover:bg-[#f3f6f1]"
+                      >
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#63715f]">
+                          <MapPin size={20} />
+                        </span>
+
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-black text-[#30392e]">
+                            {(isEnglish ? branch.nameEn || branch.name : branch.name || branch.nameEn)}
+                          </span>
+                          {branch.mapUrl && (
+                            <span className="mt-1 block text-xs font-bold text-[#8a9487]">
+                              افتح على الخريطة
+                            </span>
+                          )}
+                        </span>
+
+                        {branch.mapUrl && (
+                          <ArrowLeft size={17} className="shrink-0 text-[#8a9487] transition group-hover:text-[#4c5949]" />
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                </>
+              ) : address ? (
+                <div className="mt-5 border-t border-[#EFE8E2] pt-5">
+                  <ContactRow icon={MapPin} label="عنوان المحل" value={address} />
+                </div>
+              ) : null}
+
             </div>
+
 
 
             {/* =================================
@@ -708,78 +651,49 @@ function Contact() {
 
 
 /* =====================================
-   CONTACT CARD
+   CONTACT ROW
 ===================================== */
 
-function ContactCard({
+// One line of the contact card; hidden when the store left it empty.
+function ContactRow({
   icon: Icon,
-  title,
+  label,
   value,
   href,
   external = false,
-  muted = false,
 }) {
-  // Details the store has not filled in are hidden from customers.
-  if (muted) {
+  if (!value) {
     return null;
   }
 
   const content = (
-    <div className="flex h-full flex-col rounded-[1.75rem] border border-[#dfe6dc] bg-white p-5 shadow-sm transition sm:p-6">
+    <div className="flex items-center gap-4 py-4">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#63715f]">
+        <Icon size={20} />
+      </span>
 
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EFE8E2] text-[#63715f]">
-        <Icon
-          size={
-            20
-          }
-        />
-      </div>
-
-
-      <p className="mt-5 text-xs font-black text-[#8a9487]">
-        {title}
-      </p>
-
-
-      <p
-        className={`mt-2 break-words text-sm font-black leading-6 ${
-          muted
-            ? "text-[#a1aaa0]"
-            : "text-[#30392e]"
-        }`}
-      >
-        {value}
-      </p>
-
+      <span className="min-w-0">
+        <span className="block text-xs font-black text-[#8a9487]">
+          {label}
+        </span>
+        <span className="mt-1 block break-words text-sm font-black text-[#30392e]">
+          {value}
+        </span>
+      </span>
     </div>
   );
-
 
   if (!href) {
     return content;
   }
 
-
   return (
     <a
-      href={
-        href
-      }
-      target={
-        external
-          ? "_blank"
-          : undefined
-      }
-      rel={
-        external
-          ? "noreferrer"
-          : undefined
-      }
-      className="group"
+      href={href}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      className="block transition hover:opacity-80"
     >
-      <div className="transition group-hover:-translate-y-1 group-hover:shadow-lg">
-        {content}
-      </div>
+      {content}
     </a>
   );
 }

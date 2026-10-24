@@ -118,7 +118,14 @@ function makeStoreForm(data = {}) {
   return {
     business: {
       storeName: business.storeName || "", phone: business.phone || "", whatsapp: business.whatsapp || "", email: business.email || "",
-      address: business.address || "", addressEn: business.addressEn || "", workingHours: business.workingHours || "", googleMaps: business.googleMaps || business.mapUrl || "",
+      address: business.address || "", addressEn: business.addressEn || "",
+      // Two branch slots; empty ones are skipped on the storefront.
+      branches: [0, 1].map((index) => ({
+        name: business.branches?.[index]?.name || "",
+        nameEn: business.branches?.[index]?.nameEn || "",
+        mapUrl: business.branches?.[index]?.mapUrl || "",
+      })),
+      workingHours: business.workingHours || "", googleMaps: business.googleMaps || business.mapUrl || "",
       instagram: business.instagram || "", facebook: business.facebook || "", tiktok: business.tiktok || "", website: business.website || "", linktree: business.linktree || "",
     },
     general: { slogan: general.slogan || "", currency: general.currency || "ج.م" },
@@ -822,6 +829,20 @@ function Manager() {
                 <StoreInput label={t("العنوان")} value={storeForm.business.address} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, address: value } }))} />
                 <StoreInput label={isEnglish ? "Address (English)" : "العنوان بالإنجليزية"} value={storeForm.business.addressEn} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, addressEn: value } }))} />
                 <div className="sm:col-span-2 lg:col-span-3"><StoreInput label={t("رابط الخريطة المضمّن")} value={storeForm.business.googleMaps} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, googleMaps: value } }))} type="url" /></div>
+                {storeForm.business.branches.map((branch, index) => {
+                  const setBranch = (field, value) => setStoreForm((f) => ({
+                    ...f,
+                    business: { ...f.business, branches: f.business.branches.map((item, i) => (i === index ? { ...item, [field]: value } : item)) },
+                  }));
+                  const number = index === 0 ? (isEnglish ? "first" : "الأول") : (isEnglish ? "second" : "الثاني");
+                  return (
+                    <div key={index} className="grid gap-4 rounded-2xl border border-[#e3e9e0] bg-[#fbfcfa] p-4 sm:col-span-2 sm:grid-cols-3 lg:col-span-3">
+                      <StoreInput label={isEnglish ? `Branch ${index + 1} (Arabic)` : `الفرع ${number}`} value={branch.name} onChange={(value) => setBranch("name", value)} placeholder={isEnglish ? "Leave empty to hide" : "اتركه فارغًا لإخفائه"} />
+                      <StoreInput label={isEnglish ? `Branch ${index + 1} (English)` : `الفرع ${number} بالإنجليزية`} value={branch.nameEn} onChange={(value) => setBranch("nameEn", value)} />
+                      <StoreInput label={isEnglish ? "Google Maps link" : "رابط الفرع على Google Maps"} value={branch.mapUrl} onChange={(value) => setBranch("mapUrl", value)} type="url" placeholder="https://maps.app.goo.gl/..." />
+                    </div>
+                  );
+                })}
               </div>
             </section>
             <section className="grid gap-6 lg:grid-cols-2">

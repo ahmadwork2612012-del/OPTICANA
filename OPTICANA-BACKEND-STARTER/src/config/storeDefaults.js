@@ -20,6 +20,11 @@ export const SETTING_DEFAULTS = {
     tiktok: "https://www.tiktok.com/@opticana_optics",
     facebook: "https://www.facebook.com/Opticana.optics",
     linktree: "https://linktr.ee/opticanaoptics",
+    // Each branch opens its own Google Maps place (ids from the shop's Linktree).
+    branches: [
+      { name: "عباس العقاد، مدينة نصر", nameEn: "Abbas El Akkad, Nasr City", mapUrl: "https://www.google.com/maps/place/Opticana+Optics/@30.0664373,31.335857,17z/data=!3m1!4b1!4m6!3m5!1s0x14583ffe07bf138f:0x6620681779079f23!8m2!3d30.0664373!4d31.335857" },
+      { name: "إمبابة، الجيزة", nameEn: "Imbaba, Giza", mapUrl: "https://www.google.com/maps/place/Opticana+Optics/@30.0800702,31.2159139,17z/data=!3m1!4b1!4m6!3m5!1s0x1458410071656a75:0xf0417371afe32604!8m2!3d30.0800702!4d31.2159139" },
+    ],
   },
 };
 

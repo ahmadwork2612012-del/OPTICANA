@@ -90,6 +90,8 @@ export async function getStoreInfo() {
     email: contact.email || general.email || business.email || "",
     address: contact.address || general.address || business.address || "",
     addressEn: business.addressEn || "",
+    branches: (Array.isArray(business.branches) ? business.branches : [])
+      .filter((branch) => branch && (branch.name || branch.nameEn)),
     workingHours: contact.workingHours || business.workingHours || "",
     mapUrl: contact.mapUrl || business.googleMaps || business.mapUrl || "",
     instagram: contact.instagram || business.instagram || footer.socialLinks?.instagram || "",
