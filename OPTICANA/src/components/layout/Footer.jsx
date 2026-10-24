@@ -25,7 +25,7 @@ import { useLanguage } from "../../context/LanguageContext";
 
 
 function Footer() {
-  const { t } = useLanguage();
+  const { t, isEnglish } = useLanguage();
   const [
     store,
     setStore,
@@ -114,8 +114,18 @@ function Footer() {
     "";
 
 
+  // Address and bio are stored per language; fall back to the other
+  // language when one of them was left empty.
   const address =
-    store?.address ||
+    (isEnglish
+      ? store?.addressEn || store?.address
+      : store?.address || store?.addressEn) ||
+    "";
+
+  const bio =
+    (isEnglish
+      ? store?.footerDescriptionEn || store?.footerDescription
+      : store?.footerDescription || store?.footerDescriptionEn) ||
     "";
 
 
@@ -199,15 +209,18 @@ function Footer() {
             </div>
 
 
-            {/* pre-line keeps the bio's line breaks; plaintext bidi keeps
-                English lines in order inside the RTL layout. */}
-            <p className="mt-6 max-w-sm whitespace-pre-line text-sm leading-8 text-[#b2b9af] [unicode-bidi:plaintext]">
-              {
-                display(
-                  store?.footerDescription
-                )
-              }
-            </p>
+            {/* One element per line: the bio's line breaks survive the
+                translation layer, and plaintext bidi keeps mixed-script
+                lines in order. */}
+            {bio && (
+              <div className="mt-6 max-w-sm space-y-1 text-sm leading-7 text-[#b2b9af]">
+                {bio.split("\n").filter((line) => line.trim()).map((line, index) => (
+                  <p key={index} className="[unicode-bidi:plaintext]">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            )}
 
 
             {/* SOCIAL */}
@@ -300,7 +313,7 @@ function Footer() {
                 label="العنوان"
                 // Skipped when the footer bio above already lists the address.
                 value={
-                  address && String(store?.footerDescription || "").includes(address.split("•")[0].trim())
+                  address && bio.includes(address.split(/[•،,]/)[0].trim())
                     ? ""
                     : display(address)
                 }
@@ -411,7 +424,7 @@ function Footer() {
 
       <div className="border-t border-white/10">
 
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-5 text-center text-xs font-bold text-[#7f887d] sm:flex-row sm:items-center sm:justify-between sm:text-right">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-5 text-center text-xs font-bold text-[#7f887d] sm:flex-row sm:items-center sm:justify-between sm:text-start">
 
           <p>
             ©{" "}

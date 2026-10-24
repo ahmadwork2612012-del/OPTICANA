@@ -117,13 +117,13 @@ function makeStoreForm(data = {}) {
   return {
     business: {
       storeName: business.storeName || "", phone: business.phone || "", whatsapp: business.whatsapp || "", email: business.email || "",
-      address: business.address || "", workingHours: business.workingHours || "", googleMaps: business.googleMaps || business.mapUrl || "",
+      address: business.address || "", addressEn: business.addressEn || "", workingHours: business.workingHours || "", googleMaps: business.googleMaps || business.mapUrl || "",
       instagram: business.instagram || "", facebook: business.facebook || "", tiktok: business.tiktok || "", website: business.website || "", linktree: business.linktree || "",
     },
     general: { slogan: general.slogan || "", currency: general.currency || "ج.م" },
     contact: { title: contact.title || "", description: contact.description || "" },
     about: { title: about.title || "", description: about.description || "", vision: about.vision || "", mission: about.mission || "" },
-    footer: { description: footer.description || "" },
+    footer: { description: footer.description || "", descriptionEn: footer.descriptionEn || "" },
     home: { hero: { ...hero, image: hero.image || "" } },
   };
 }
@@ -819,13 +819,14 @@ function Manager() {
                 <StoreInput label="Facebook" value={storeForm.business.facebook} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, facebook: value } }))} type="url" />
                 <StoreInput label={t("ساعات العمل")} value={storeForm.business.workingHours} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, workingHours: value } }))} />
                 <StoreInput label={t("العنوان")} value={storeForm.business.address} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, address: value } }))} />
+                <StoreInput label={isEnglish ? "Address (English)" : "العنوان بالإنجليزية"} value={storeForm.business.addressEn} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, addressEn: value } }))} />
                 <div className="sm:col-span-2 lg:col-span-3"><StoreInput label={t("رابط الخريطة المضمّن")} value={storeForm.business.googleMaps} onChange={(value) => setStoreForm((f) => ({ ...f, business: { ...f.business, googleMaps: value } }))} type="url" /></div>
               </div>
             </section>
             <section className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7 lg:col-span-2"><h2 className="text-xl font-black">{t("صورة الصفحة الرئيسية")}</h2><p className="mt-1 text-sm text-[#7a8378]">{t("تظهر هذه الصورة في القسم الرئيسي من الصفحة الرئيسية.")}</p><div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto]"><StoreInput label={t("رابط الصورة")} value={storeForm.home.hero.image} onChange={(value) => setStoreForm((f) => ({ ...f, home: { ...f.home, hero: { ...f.home.hero, image: value } } }))} type="url" placeholder="https://..." /><label className="flex h-12 cursor-pointer items-center justify-center rounded-2xl border border-dashed border-[#aebda8] bg-[#EFE8E2] px-5 text-sm font-black text-[#53634f]"><ImagePlus size={17} className="ml-2" />{t("رفع صورة من ملف")}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => handleHeroImage(event.target.files?.[0])} /></label></div>{storeForm.home.hero.image && <img src={storeForm.home.hero.image} alt={t("معاينة صورة الصفحة الرئيسية")} className="mt-4 h-40 w-full rounded-2xl object-cover sm:h-56" />}</div>
               <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7"><h2 className="text-xl font-black">{t("صفحة تواصل معنا")}</h2><div className="mt-5 space-y-4"><StoreInput label={t("العنوان")} value={storeForm.contact.title} onChange={(value) => setStoreForm((f) => ({ ...f, contact: { ...f.contact, title: value } }))} /><StoreTextarea label={t("الوصف")} value={storeForm.contact.description} onChange={(value) => setStoreForm((f) => ({ ...f, contact: { ...f.contact, description: value } }))} /></div></div>
-              <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7"><h2 className="text-xl font-black">{t("الفوتر")}</h2><div className="mt-5"><StoreTextarea label={t("وصف الفوتر")} value={storeForm.footer.description} onChange={(value) => setStoreForm((f) => ({ ...f, footer: { ...f.footer, description: value } }))} /></div></div>
+              <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7"><h2 className="text-xl font-black">{t("الفوتر")}</h2><div className="mt-5"><StoreTextarea label={t("وصف الفوتر")} value={storeForm.footer.description} onChange={(value) => setStoreForm((f) => ({ ...f, footer: { ...f.footer, description: value } }))} /><div className="mt-4"><StoreTextarea label={isEnglish ? "Footer description (English)" : "وصف الفوتر بالإنجليزية"} value={storeForm.footer.descriptionEn} onChange={(value) => setStoreForm((f) => ({ ...f, footer: { ...f.footer, descriptionEn: value } }))} /></div></div></div>
               <div className="rounded-[28px] border border-[#dfe6dc] bg-white p-5 shadow-sm sm:p-7 lg:col-span-2"><h2 className="text-xl font-black">{t("صفحة من نحن")}</h2><div className="mt-5 grid gap-4 sm:grid-cols-2"><StoreInput label={t("العنوان")} value={storeForm.about.title} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, title: value } }))} /><StoreInput label={t("الرؤية")} value={storeForm.about.vision} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, vision: value } }))} /><StoreTextarea label={t("الوصف")} value={storeForm.about.description} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, description: value } }))} /><StoreTextarea label={t("الرسالة")} value={storeForm.about.mission} onChange={(value) => setStoreForm((f) => ({ ...f, about: { ...f.about, mission: value } }))} /></div></div>
             </section>
             <div className="flex justify-end"><button disabled={storeSaving} className="inline-flex h-12 items-center gap-2 rounded-2xl bg-[#B4C4AD] px-6 text-sm font-black text-white disabled:opacity-50"><Save size={17} />{storeSaving ? t("جاري الحفظ...") : t("حفظ بيانات المتجر")}</button></div>

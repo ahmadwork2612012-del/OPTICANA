@@ -26,6 +26,7 @@ import {
 } from "../services/storeService";
 
 import Loading from "../components/ui/Loading";
+import { useLanguage } from "../context/LanguageContext";
 
 
 /* =====================================
@@ -56,6 +57,8 @@ function normalizeMapEmbedUrl(value) {
 }
 
 function Contact() {
+  const { isEnglish } = useLanguage();
+
   const [
     content,
     setContent,
@@ -193,8 +196,11 @@ function Contact() {
     "";
 
 
+  // Stored per language; falls back to the other one when left empty.
   const address =
-    store?.address ||
+    (isEnglish
+      ? store?.addressEn || store?.address
+      : store?.address || store?.addressEn) ||
     "";
 
 

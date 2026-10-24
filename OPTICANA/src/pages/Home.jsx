@@ -434,7 +434,7 @@ function Home() {
                 <img
                   src={store?.logo || "/opticana-logo.png"}
                   alt={store?.name || "OPTICANA"}
-                  className="mb-5 h-14 w-auto max-w-[190px] object-contain object-right"
+                  className="mb-5 h-14 w-auto max-w-[190px] object-contain rtl:object-right ltr:object-left"
                 />
 
                 <span className="inline-flex items-center gap-2 rounded-full border border-[#d6e0d2] bg-[#EFE8E2] px-4 py-2 text-xs font-black text-[#596755]">
@@ -1206,7 +1206,6 @@ function HorizontalCategories({
         ref={
           scrollRef
         }
-        dir="rtl"
         className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 scrollbar-none"
         style={{
           scrollbarWidth:
@@ -1512,7 +1511,7 @@ function FaqSection({
                           : index
                       )
                     }
-                    className="flex w-full items-center justify-between gap-5 px-5 py-5 text-right"
+                    className="flex w-full items-center justify-between gap-5 px-5 py-5 text-start"
                   >
 
                     <span className="font-black text-[#30392e]">

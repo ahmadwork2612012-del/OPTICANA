@@ -1317,7 +1317,7 @@ ${isEnglish ? `Order number: ${orderNumber}` : `رقم الطلب: ${orderNumber
 
 
                 {hasUnavailable && (
-                  <p className="mt-2 text-right text-[11px] font-bold text-[#a17c34]">
+                  <p className="mt-2 text-start text-[11px] font-bold text-[#a17c34]">
                     الإجمالي محسوب للمنتجات المتاحة فقط.
                   </p>
                 )}

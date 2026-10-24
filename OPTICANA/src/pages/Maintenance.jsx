@@ -199,7 +199,7 @@ function Maintenance() {
                       store?.name ||
                       "OPTICANA"
                     }
-                    className="h-14 max-w-48 object-contain object-right"
+                    className="h-14 max-w-48 object-contain rtl:object-right ltr:object-left"
                   />
 
                 </div>

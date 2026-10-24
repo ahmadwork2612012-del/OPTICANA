@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
+/* Direction follows the dir attribute the language switch sets on <html>;
+   Arabic (rtl) stays the default until JavaScript runs. */
 html {
-  direction: rtl;
   scroll-behavior: smooth;
+}
+
+html:not([dir="ltr"]) {
+  direction: rtl;
 }
 
 body {
@@ -67,4 +72,13 @@ html {
 
 body {
   overscroll-behavior-y: none;
+}
+
+/* Arrows are drawn for the Arabic (RTL) layout, where "←" means "forward".
+   Mirror them in English so they point the way the text reads. Slider
+   chevrons are left alone: they sit on a fixed side of the screen. */
+html[dir="ltr"] .lucide-arrow-left,
+html[dir="ltr"] .lucide-arrow-right,
+html[dir="ltr"] .lucide-arrow-up-left {
+  transform: scaleX(-1);
 }

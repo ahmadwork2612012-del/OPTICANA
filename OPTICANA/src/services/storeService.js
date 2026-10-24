@@ -88,6 +88,7 @@ export async function getStoreInfo() {
     whatsapp: contact.whatsapp || general.whatsapp || business.whatsapp || "",
     email: contact.email || general.email || business.email || "",
     address: contact.address || general.address || business.address || "",
+    addressEn: business.addressEn || "",
     workingHours: contact.workingHours || business.workingHours || "",
     mapUrl: contact.mapUrl || business.googleMaps || business.mapUrl || "",
     instagram: contact.instagram || business.instagram || footer.socialLinks?.instagram || "",
@@ -102,6 +103,7 @@ export async function getStoreInfo() {
     seoKeywords: seo.keywords || "",
     socialImage: resolveMediaUrl(seo.socialImage || null),
     footerDescription: footer.description || "",
+    footerDescriptionEn: footer.descriptionEn || "",
     footerLinks: Array.isArray(footer.quickLinks) ? footer.quickLinks.filter(x=>x?.enabled!==false) : [],
     maintenance: {
       ...DEFAULT_CONTENT.maintenance,

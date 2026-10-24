@@ -11,7 +11,8 @@ export const SETTING_DEFAULTS = {
   business: {
     phone: "+20 100 327 7700",
     whatsapp: "201003277700",
-    address: "Imbaba, Giza • Abbas El Akkad, Nasr City",
+    address: "إمبابة، الجيزة • عباس العقاد، مدينة نصر",
+    addressEn: "Imbaba, Giza • Abbas El Akkad, Nasr City",
     // CID taken from the shop's Google Maps place link; works both as a
     // link and, with &output=embed, inside the contact page map.
     googleMaps: "https://www.google.com/maps?cid=7358996241147469603",
@@ -24,7 +25,8 @@ export const SETTING_DEFAULTS = {
 
 export const CONTENT_DEFAULTS = {
   footer: {
-    description: "Sunglasses • Optical Frames • Contact Lenses\n📍 Imbaba, Giza\n📍 Abbas El Akkad, Nasr City",
+    description: "نظارات شمسية • إطارات طبية • عدسات لاصقة\n📍 إمبابة، الجيزة\n📍 عباس العقاد، مدينة نصر",
+    descriptionEn: "Sunglasses • Optical Frames • Contact Lenses\n📍 Imbaba, Giza\n📍 Abbas El Akkad, Nasr City",
   },
 };
 

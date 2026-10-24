@@ -1213,7 +1213,7 @@ function ProductDetails() {
 
                   {/* Only worth showing once more than one piece is selected. */}
                   {!isOutOfStock && selectedTotal !== unitPrice && (
-                    <div className="text-right">
+                    <div className="text-start">
 
                       <p className="text-xs font-bold text-[#8b9588]">
                         إجمالي الكمية
