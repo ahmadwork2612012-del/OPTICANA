@@ -257,7 +257,7 @@ function Navbar() {
             className="group flex min-w-fit items-center gap-3"
           >
 
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-[#d8ddd4]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-[0_4px_14px_rgba(38,48,36,0.12)] transition duration-300 group-hover:shadow-[0_6px_18px_rgba(38,48,36,0.18)]">
               <img
                 src={logo}
                 alt={storeName}
@@ -270,11 +270,6 @@ function Navbar() {
 
               <span className="text-[24px] font-black tracking-[0.07em] text-[#20251f] transition duration-300 group-hover:text-[#52614e] sm:text-[27px]">
                 {storeName}
-              </span>
-
-
-              <span className="text-[10px] font-bold tracking-[0.05em] text-[#697565] sm:text-[11px]">
-                {slogan}
               </span>
 
             </div>
