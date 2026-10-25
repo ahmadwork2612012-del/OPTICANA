@@ -1,6 +1,17 @@
 import "dotenv/config";
 import { z } from "zod";
 
+// Values pasted into a hosting dashboard often keep the quotes from a .env
+// line or a trailing space/newline. For keys used to sign requests (R2) one
+// extra character breaks every signature, so strip them.
+const pastedValue = z.preprocess(
+  (value) =>
+    typeof value === "string"
+      ? value.trim().replace(/^(["'])(.*)\1$/s, "$2").trim()
+      : value,
+  z.string().optional()
+);
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -13,11 +24,14 @@ const envSchema = z.object({
   MEDIA_BASE_URL: z.string().default("/uploads"),
   // Cloudflare R2 (S3-compatible). When all are set, media is stored in R2
   // instead of the local disk, which is read-only on Vercel.
-  R2_ACCOUNT_ID: z.string().optional(),
-  R2_ACCESS_KEY_ID: z.string().optional(),
-  R2_SECRET_ACCESS_KEY: z.string().optional(),
-  R2_BUCKET: z.string().optional(),
-  R2_PUBLIC_BASE_URL: z.union([z.string().url(), z.literal("")]).optional(),
+  R2_ACCOUNT_ID: pastedValue,
+  R2_ACCESS_KEY_ID: pastedValue,
+  R2_SECRET_ACCESS_KEY: pastedValue,
+  R2_BUCKET: pastedValue,
+  R2_PUBLIC_BASE_URL: pastedValue.refine(
+    (value) => !value || /^https?:\/\/[^\s"']+$/.test(value),
+    "R2_PUBLIC_BASE_URL must be a URL"
+  ),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -42,6 +42,11 @@ function r2() {
     client = new S3Client({
       region: "auto",
       forcePathStyle: true,
+      // Newer SDKs add a default CRC32 checksum (of an empty body) to
+      // presigned uploads; R2 does not need it, so only send checksums when
+      // an operation requires them.
+      requestChecksumCalculation: "WHEN_REQUIRED",
+      responseChecksumValidation: "WHEN_REQUIRED",
       endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
       credentials: {
         accessKeyId: env.R2_ACCESS_KEY_ID,
