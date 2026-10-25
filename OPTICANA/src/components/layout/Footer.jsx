@@ -418,7 +418,7 @@ function Footer() {
           <div className="flex items-center justify-center gap-4 sm:justify-end">
             <Link
               to="/manage"
-              className="text-[10px] font-black text-[#5f695c] transition hover:text-[#B4C4AD]"
+              className="text-[10px] font-black text-[#B4C4AD] transition hover:text-white"
             >
               {t("إدارة المتجر")}
             </Link>
