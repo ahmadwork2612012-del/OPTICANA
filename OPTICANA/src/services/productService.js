@@ -341,7 +341,13 @@ function normalizeProduct(
 
     customFields:
       Array.isArray(product.customFields)
-        ? product.customFields.filter((field) => field && typeof field.name === "string" && typeof field.value === "string")
+        ? product.customFields
+            .filter((field) => field && typeof field.name === "string" && ["string", "number"].includes(typeof field.value))
+            .map((field) => ({
+              ...field,
+              type: ["text", "number", "image"].includes(field.type) ? field.type : "text",
+              value: field.type === "image" ? resolveMediaUrl(String(field.value)) : field.value,
+            }))
         : [],
 
     /* -------------------------------
