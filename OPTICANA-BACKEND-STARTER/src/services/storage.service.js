@@ -230,3 +230,53 @@ export async function deleteObjectByUrl(url) {
 export async function deleteObjectsByUrl(urls) {
   await Promise.all([...new Set(urls)].map(deleteObjectByUrl));
 }
+
+/*
+  Admin-only health check for R2: describes how the variables arrived
+  (lengths, stray quotes/spaces; never the values) and runs a real signed
+  upload of a 1x1 PNG, reporting R2's error code if it fails.
+*/
+export async function diagnoseR2() {
+  const describe = (name) => {
+    const raw = process.env[name];
+    if (raw === undefined) return { set: false };
+    return {
+      set: true,
+      length: raw.length,
+      hasQuotes: /["']/.test(raw),
+      hasSurroundingSpace: raw !== raw.trim(),
+      usedLength: String(env[name] || "").length,
+    };
+  };
+
+  const report = {
+    configured: isR2Enabled,
+    variables: {
+      R2_ACCOUNT_ID: { ...describe("R2_ACCOUNT_ID"), looksValid: /^[0-9a-f]{32}$/.test(String(env.R2_ACCOUNT_ID || "")) },
+      R2_ACCESS_KEY_ID: { ...describe("R2_ACCESS_KEY_ID"), expectedLength: 32 },
+      R2_SECRET_ACCESS_KEY: { ...describe("R2_SECRET_ACCESS_KEY"), expectedLength: 64 },
+      R2_BUCKET: { ...describe("R2_BUCKET"), value: env.R2_BUCKET || null },
+      R2_PUBLIC_BASE_URL: { ...describe("R2_PUBLIC_BASE_URL"), value: r2PublicBase || null },
+    },
+    uploadTest: null,
+  };
+
+  if (!isR2Enabled) return report;
+
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+  try {
+    const target = await createUploadUrl({ mimeType: "image/png", size: png.length, folder: "general" });
+    const response = await fetch(target.uploadUrl, { method: "PUT", headers: target.headers, body: png });
+    const text = response.ok ? "" : await response.text();
+    report.uploadTest = {
+      status: response.status,
+      ok: response.ok,
+      r2Error: (text.match(/<Code>([^<]+)<\/Code>/) || [])[1] || null,
+      checksumInUrl: /checksum/i.test(target.uploadUrl),
+    };
+    if (response.ok) await deleteObjectByUrl(target.publicUrl);
+  } catch (error) {
+    report.uploadTest = { ok: false, error: String(error?.message || error).slice(0, 200) };
+  }
+  return report;
+}
