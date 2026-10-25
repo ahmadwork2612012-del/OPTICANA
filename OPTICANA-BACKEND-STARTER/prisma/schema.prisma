@@ -162,6 +162,7 @@ model Product {
   color         String?
   material      String?
   size          String?
+  customFields  Json          @default("[]")
   rating        Decimal       @default(0) @db.Decimal(3, 2)
   ratingCount   Int           @default(0)
   status        ProductStatus @default(DRAFT)

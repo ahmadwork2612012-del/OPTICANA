@@ -85,6 +85,7 @@ const EMPTY_FORM = {
   color: "",
   material: "",
   size: "",
+  customFields: [],
   images: [],
   publish: true,
   featured: false,
@@ -249,6 +250,9 @@ function Manager() {
       color: product.color || "",
       material: product.material || "",
       size: product.size || "",
+      customFields: (Array.isArray(product.customFields) ? product.customFields : [])
+        .map((field) => ({ name: String(field?.name || ""), value: String(field?.value || "") }))
+        .filter((field) => field.name.trim() || field.value.trim()),
       images: (Array.isArray(product.images) ? product.images : [])
         .map((image) => (typeof image === "string" ? image : image?.url))
         .filter(Boolean),
@@ -668,6 +672,64 @@ function Manager() {
                   <Field label={t("وصف المنتج بالإنجليزية")}>
                     <textarea value={form.descriptionEn} onChange={(e) => setField("descriptionEn", e.target.value)} className={`${inputClass} min-h-28 py-3`} placeholder="Describe the product in English" />
                   </Field>
+                </div>
+
+                <div className="sm:col-span-2 rounded-2xl border border-[#dfe6dc] bg-[#f8faf7] p-4 sm:p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-black text-[#34402f]">{t("حقول مخصصة للمنتج")}</h3>
+                      <p className="mt-1 text-xs leading-6 text-[#758073]">{t("أضف أي خاصية إضافية باسم وقيمة من اختيارك، مثل الحماية من الأشعة أو نوع العدسة.")}</p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={(Array.isArray(form.customFields) ? form.customFields.length : 0) >= 50}
+                      onClick={() => setField("customFields", [...(Array.isArray(form.customFields) ? form.customFields : []), { name: "", value: "" }])}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#cfd9cb] bg-white px-3 text-xs font-black text-[#53604e] transition hover:border-[#9dad95] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Plus size={15} />
+                      {t("إضافة حقل")}
+                    </button>
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    {(Array.isArray(form.customFields) ? form.customFields : []).map((customField, index) => (
+                      <div key={`custom-field-${index}`} className="grid gap-3 sm:grid-cols-[1fr_1.5fr_auto] sm:items-end">
+                        <Field label={t("اسم الخاصية")} required>
+                          <input
+                            value={customField.name || ""}
+                            maxLength={80}
+                            required
+                            onChange={(event) => setField("customFields", form.customFields.map((item, fieldIndex) => fieldIndex === index ? { ...item, name: event.target.value } : item))}
+                            className={inputClass}
+                            placeholder={t("مثال: الحماية من الأشعة")}
+                          />
+                        </Field>
+                        <Field label={t("القيمة")} required>
+                          <input
+                            value={customField.value || ""}
+                            maxLength={500}
+                            required
+                            onChange={(event) => setField("customFields", form.customFields.map((item, fieldIndex) => fieldIndex === index ? { ...item, value: event.target.value } : item))}
+                            className={inputClass}
+                            placeholder={t("مثال: UV400")}
+                          />
+                        </Field>
+                        <button
+                          type="button"
+                          onClick={() => setField("customFields", form.customFields.filter((_, fieldIndex) => fieldIndex !== index))}
+                          className="mb-0.5 flex h-11 w-11 items-center justify-center rounded-xl border border-[#ead6d2] bg-white text-[#9c5b50] transition hover:bg-[#fff7f5]"
+                          aria-label={t("حذف الحقل")}
+                          title={t("حذف الحقل")}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                    {(!Array.isArray(form.customFields) || form.customFields.length === 0) && (
+                      <p className="rounded-xl border border-dashed border-[#d8e0d4] bg-white/70 px-3 py-4 text-xs text-[#8a9388]">
+                        {t("لا توجد حقول إضافية. أضف حقلًا عند الحاجة.")}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2 grid gap-3 sm:grid-cols-2">

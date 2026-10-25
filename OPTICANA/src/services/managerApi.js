@@ -330,6 +330,10 @@ function buildPayload(product, isCreate) {
     color: String(product.color || "").trim() || undefined,
     material: String(product.material || "").trim() || undefined,
     size: String(product.size || "").trim() || undefined,
+    customFields: (Array.isArray(product.customFields) ? product.customFields : [])
+      .map((field) => ({ name: String(field?.name || "").trim(), value: String(field?.value || "").trim() }))
+      .filter((field) => field.name && field.value)
+      .slice(0, 50),
     status: product.publish ? "PUBLISHED" : "DRAFT",
     showOnStore: product.publish === true,
     featured: product.featured === true,
@@ -350,6 +354,9 @@ function normalizeProduct(product) {
     image: resolveMediaUrl(product.image || product.images?.[0]?.url || null),
     images: Array.isArray(product.images)
       ? product.images.map((image) => ({ ...image, url: resolveMediaUrl(image.url) }))
+      : [],
+    customFields: Array.isArray(product.customFields)
+      ? product.customFields.filter((field) => field && typeof field.name === "string" && typeof field.value === "string")
       : [],
     price: Number(product.price || 0),
     stock: Number(product.stock || 0),

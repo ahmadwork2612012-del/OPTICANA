@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { comparePassword, hashPassword } from "../src/utils/password.js";
 import { createOrderSchema } from "../src/validators/order.validator.js";
-import { createProductSchema } from "../src/validators/product.validator.js";
+import { createProductSchema, updateProductSchema } from "../src/validators/product.validator.js";
 import { assertRoleAssignment } from "../src/services/auth.service.js";
 import { changeStock } from "../src/services/inventory.service.js";
 import { rateLimit } from "../src/middleware/rateLimit.js";
@@ -32,6 +32,30 @@ test("product and order validators reject unsafe inventory inputs", () => {
   assert.equal(createProductSchema.safeParse({ sku: "A-1", name: "Frame", slug: "frame", price: 100, images: [{ url: "javascript:alert(1)" }] }).success, false);
   assert.equal(createOrderSchema.safeParse({ items: [{ productId: "p1", quantity: 0 }] }).success, false);
   assert.equal(createOrderSchema.safeParse({ customer: { name: "Customer", phone: "01000000000" }, items: [{ productId: "p1", quantity: 1 }], discount: 0 }).success, true);
+});
+
+test("custom product fields accept bounded name/value pairs and reject invalid values", () => {
+  const product = { sku: "CUSTOM-1", name: "Frame", slug: "frame", price: 100 };
+  const valid = createProductSchema.safeParse({
+    ...product,
+    customFields: [{ name: "  UV protection  ", value: "  UV400  " }],
+  });
+  assert.equal(valid.success, true);
+  assert.deepEqual(valid.data.customFields, [{ name: "UV protection", value: "UV400" }]);
+  assert.equal(createProductSchema.safeParse({
+    ...product,
+    customFields: [{ name: "", value: "UV400" }],
+  }).success, false);
+  assert.equal(createProductSchema.safeParse({
+    ...product,
+    customFields: Array.from({ length: 51 }, (_, index) => ({ name: `Field ${index}`, value: "value" })),
+  }).success, false);
+  assert.equal(updateProductSchema.safeParse({
+    customFields: [{ name: "Width", value: "52 mm" }],
+  }).success, true);
+  assert.equal(updateProductSchema.safeParse({
+    customFields: [{ name: "Width", value: "x".repeat(501) }],
+  }).success, false);
 });
 
 function inventoryTx(stock) {
