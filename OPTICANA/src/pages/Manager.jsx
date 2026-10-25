@@ -682,8 +682,9 @@ function Manager() {
                     </div>
                     <button
                       type="button"
+                      disabled={(Array.isArray(form.customFields) ? form.customFields.length : 0) >= 50}
                       onClick={() => setField("customFields", [...(Array.isArray(form.customFields) ? form.customFields : []), { name: "", value: "" }])}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#cfd9cb] bg-white px-3 text-xs font-black text-[#53604e] transition hover:border-[#9dad95]"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#cfd9cb] bg-white px-3 text-xs font-black text-[#53604e] transition hover:border-[#9dad95] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Plus size={15} />
                       {t("إضافة حقل")}
