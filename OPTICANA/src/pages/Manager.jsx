@@ -147,6 +147,7 @@ function Manager() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(0);
+  const [uploadingCustomFields, setUploadingCustomFields] = useState({});
   const [loading, setLoading] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [showForm, setShowForm] = useState(false);
@@ -251,7 +252,11 @@ function Manager() {
       material: product.material || "",
       size: product.size || "",
       customFields: (Array.isArray(product.customFields) ? product.customFields : [])
-        .map((field) => ({ name: String(field?.name || ""), value: String(field?.value || "") }))
+        .map((field) => ({
+          name: String(field?.name || ""),
+          type: ["text", "number", "image"].includes(field?.type) ? field.type : "text",
+          value: String(field?.value ?? ""),
+        }))
         .filter((field) => field.name.trim() || field.value.trim()),
       images: (Array.isArray(product.images) ? product.images : [])
         .map((image) => (typeof image === "string" ? image : image?.url))
@@ -266,6 +271,15 @@ function Manager() {
   };
 
   const setField = (name, value) => setForm((current) => ({ ...current, [name]: value }));
+
+  const updateCustomField = (index, patch) => {
+    setForm((current) => ({
+      ...current,
+      customFields: (Array.isArray(current.customFields) ? current.customFields : []).map((item, fieldIndex) =>
+        fieldIndex === index ? { ...item, ...patch } : item
+      ),
+    }));
+  };
 
   const handleImages = async (files) => {
     const selected = Array.from(files || []);
@@ -298,6 +312,31 @@ function Manager() {
     }
   };
 
+  const handleCustomFieldImage = async (index, file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return toast.error(t("اختر صورة صالحة."));
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      return toast.error(isEnglish ? "Each image must be smaller than 20 MB." : "يجب أن يكون حجم الصورة أقل من 20MB.");
+    }
+
+    setUploadingCustomFields((current) => ({ ...current, [index]: true }));
+    const uploadToast = toast.loading(isEnglish ? "Uploading property image..." : "جاري رفع صورة الخاصية...");
+    try {
+      const image = await uploadManagerImage(file, "products");
+      setForm((current) => ({
+        ...current,
+        customFields: (Array.isArray(current.customFields) ? current.customFields : []).map((item, fieldIndex) =>
+          fieldIndex === index ? { ...item, type: "image", value: image } : item
+        ),
+      }));
+      toast.success(t("تم رفع صورة الخاصية"), { id: uploadToast });
+    } catch (error) {
+      toast.error(error?.message || (isEnglish ? "Unable to upload the image." : "تعذر رفع الصورة."), { id: uploadToast });
+    } finally {
+      setUploadingCustomFields((current) => ({ ...current, [index]: false }));
+    }
+  };
+
   const removeImage = (index) => {
     setField("images", form.images.filter((_, imageIndex) => imageIndex !== index));
   };
@@ -320,7 +359,7 @@ function Manager() {
     event.preventDefault();
     if (!form.name.trim()) return toast.error(t("اكتب اسم المنتج."));
     if (!form.price || Number(form.price) <= 0) return toast.error(t("أدخل سعرًا صحيحًا."));
-    if (uploadingImages > 0) return toast.error(isEnglish ? "Please wait for the images to finish uploading." : "انتظر حتى يكتمل رفع الصور.");
+    if (uploadingImages > 0 || Object.values(uploadingCustomFields).some(Boolean)) return toast.error(isEnglish ? "Please wait for the images to finish uploading." : "انتظر حتى يكتمل رفع الصور.");
     if (!form.sku.trim()) setField("sku", makeSku());
 
     setSaving(true);
@@ -683,7 +722,7 @@ function Manager() {
                     <button
                       type="button"
                       disabled={(Array.isArray(form.customFields) ? form.customFields.length : 0) >= 50}
-                      onClick={() => setField("customFields", [...(Array.isArray(form.customFields) ? form.customFields : []), { name: "", value: "" }])}
+                      onClick={() => setField("customFields", [...(Array.isArray(form.customFields) ? form.customFields : []), { name: "", type: "text", value: "" }])}
                       className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#cfd9cb] bg-white px-3 text-xs font-black text-[#53604e] transition hover:border-[#9dad95] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Plus size={15} />
@@ -692,31 +731,69 @@ function Manager() {
                   </div>
                   <div className="mt-4 space-y-3">
                     {(Array.isArray(form.customFields) ? form.customFields : []).map((customField, index) => (
-                      <div key={`custom-field-${index}`} className="grid gap-3 sm:grid-cols-[1fr_1.5fr_auto] sm:items-end">
+                      <div key={`custom-field-${index}`} className="grid gap-3 sm:grid-cols-[1fr_0.7fr_1.5fr_auto] sm:items-end">
                         <Field label={t("اسم الخاصية")} required>
                           <input
                             value={customField.name || ""}
                             maxLength={80}
                             required
-                            onChange={(event) => setField("customFields", form.customFields.map((item, fieldIndex) => fieldIndex === index ? { ...item, name: event.target.value } : item))}
+                            onChange={(event) => updateCustomField(index, { name: event.target.value })}
                             className={inputClass}
                             placeholder={t("مثال: الحماية من الأشعة")}
                           />
                         </Field>
-                        <Field label={t("القيمة")} required>
-                          <input
-                            value={customField.value || ""}
-                            maxLength={500}
-                            required
-                            onChange={(event) => setField("customFields", form.customFields.map((item, fieldIndex) => fieldIndex === index ? { ...item, value: event.target.value } : item))}
+                        <Field label={t("نوع القيمة")} required>
+                          <select
+                            value={["text", "number", "image"].includes(customField.type) ? customField.type : "text"}
+                            disabled={Boolean(uploadingCustomFields[index])}
+                            onChange={(event) => updateCustomField(index, { type: event.target.value, value: "" })}
                             className={inputClass}
-                            placeholder={t("مثال: UV400")}
-                          />
+                          >
+                            <option value="text">{t("نص")}</option>
+                            <option value="number">{t("رقم")}</option>
+                            <option value="image">{t("صورة")}</option>
+                          </select>
+                        </Field>
+                        <Field label={t("القيمة")} required>
+                          {customField.type === "image" ? (
+                            <div className="space-y-2">
+                              {customField.value ? (
+                                <img src={customField.value} alt={customField.name || t("صورة")} className="h-24 w-24 rounded-xl border border-[#dfe5dc] bg-white object-contain p-1" />
+                              ) : (
+                                <p className="text-xs text-[#8a9388]">{t("لم يتم رفع صورة لهذه الخاصية بعد")}</p>
+                              )}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                required={!customField.value}
+                                disabled={Boolean(uploadingCustomFields[index])}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0];
+                                  void handleCustomFieldImage(index, file);
+                                  event.target.value = "";
+                                }}
+                                className={inputClass}
+                                aria-label={t("ارفع صورة للخاصية")}
+                              />
+                            </div>
+                          ) : (
+                            <input
+                              type={customField.type === "number" ? "number" : "text"}
+                              step={customField.type === "number" ? "any" : undefined}
+                              value={customField.value ?? ""}
+                              maxLength={customField.type === "number" ? undefined : 500}
+                              required
+                              onChange={(event) => updateCustomField(index, { value: event.target.value })}
+                              className={inputClass}
+                              placeholder={customField.type === "number" ? t("مثال: 250") : t("مثال: UV400")}
+                            />
+                          )}
                         </Field>
                         <button
                           type="button"
+                          disabled={Boolean(uploadingCustomFields[index])}
                           onClick={() => setField("customFields", form.customFields.filter((_, fieldIndex) => fieldIndex !== index))}
-                          className="mb-0.5 flex h-11 w-11 items-center justify-center rounded-xl border border-[#ead6d2] bg-white text-[#9c5b50] transition hover:bg-[#fff7f5]"
+                          className="mb-0.5 flex h-11 w-11 items-center justify-center rounded-xl border border-[#ead6d2] bg-white text-[#9c5b50] transition hover:bg-[#fff7f5] disabled:cursor-not-allowed disabled:opacity-50"
                           aria-label={t("حذف الحقل")}
                           title={t("حذف الحقل")}
                         >
