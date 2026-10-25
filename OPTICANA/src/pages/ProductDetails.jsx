@@ -1555,13 +1555,20 @@ ${product.name}
               />
 
               {Array.isArray(product.customFields) && product.customFields
-                .filter((field) => String(field?.name || "").trim() && String(field?.value || "").trim())
+                .filter((field) => String(field?.name || "").trim() && field?.value !== null && field?.value !== undefined && String(field.value).trim() !== "")
                 .map((field, index) => (
-                  <SpecRow
-                    key={`custom-field-${index}-${String(field.name).trim()}`}
-                    label={String(field.name).trim()}
-                    value={String(field.value).trim()}
-                  />
+                  field.type === "image" ? (
+                    <div key={`custom-field-${index}-${String(field.name).trim()}`} className="flex items-start justify-between gap-4 border-b border-[#EFE8E2] pb-4 last:border-0 last:pb-0">
+                      <span className="text-sm font-black text-[#30382e]">{String(field.name).trim()}</span>
+                      <img src={String(field.value)} alt={String(field.name).trim()} loading="lazy" className="max-h-32 max-w-[50%] rounded-xl border border-[#EFE8E2] bg-white object-contain" />
+                    </div>
+                  ) : (
+                    <SpecRow
+                      key={`custom-field-${index}-${String(field.name).trim()}`}
+                      label={String(field.name).trim()}
+                      value={String(field.value)}
+                    />
+                  )
                 ))}
 
               <SpecRow

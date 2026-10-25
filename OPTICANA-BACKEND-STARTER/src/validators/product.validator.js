@@ -13,6 +13,25 @@ const mediaUrlSchema = z.string().trim().refine((value) => {
   }
 }, "Invalid media URL");
 
+const customFieldSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  type: z.enum(["text", "number", "image"]).optional().default("text"),
+  value: z.union([
+    z.string().trim().min(1).max(500),
+    z.number().finite(),
+  ]),
+}).superRefine((field, context) => {
+  if (field.type === "number" && typeof field.value !== "number") {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["value"], message: "Number fields must use a numeric value" });
+  }
+  if ((field.type === "text" || field.type === "image") && typeof field.value !== "string") {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["value"], message: "Text and image fields must use a string value" });
+  }
+  if (field.type === "image" && typeof field.value === "string" && !mediaUrlSchema.safeParse(field.value).success) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["value"], message: "Image fields must contain a valid image URL" });
+  }
+});
+
 export const createProductSchema = z.object({
   sku: z.string().trim().min(1),
   name: z.string().trim().min(1),
@@ -49,10 +68,7 @@ export const createProductSchema = z.object({
     z.string().optional(),
 
   customFields:
-    z.array(z.object({
-      name: z.string().trim().min(1).max(80),
-      value: z.string().trim().min(1).max(500),
-    })).max(50).default([]),
+    z.array(customFieldSchema).max(50).default([]),
 
   status:
     z.enum([
@@ -136,10 +152,7 @@ export const updateProductSchema =
       z.string().optional(),
 
     customFields:
-      z.array(z.object({
-        name: z.string().trim().min(1).max(80),
-        value: z.string().trim().min(1).max(500),
-      })).max(50).optional(),
+      z.array(customFieldSchema).max(50).optional(),
 
     status:
       z.enum([

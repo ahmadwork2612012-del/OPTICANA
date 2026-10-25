@@ -331,8 +331,16 @@ function buildPayload(product, isCreate) {
     material: String(product.material || "").trim() || undefined,
     size: String(product.size || "").trim() || undefined,
     customFields: (Array.isArray(product.customFields) ? product.customFields : [])
-      .map((field) => ({ name: String(field?.name || "").trim(), value: String(field?.value || "").trim() }))
-      .filter((field) => field.name && field.value)
+      .map((field) => {
+        const type = ["text", "number", "image"].includes(field?.type) ? field.type : "text";
+        const name = String(field?.name || "").trim();
+        const rawValue = field?.value;
+        const value = type === "number"
+          ? (rawValue === "" || rawValue === null || rawValue === undefined ? null : Number(rawValue))
+          : String(rawValue ?? "").trim();
+        return { name, type, value };
+      })
+      .filter((field) => field.name && field.value !== null && String(field.value).trim() !== "" && (field.type !== "number" || Number.isFinite(field.value)))
       .slice(0, 50),
     status: product.publish ? "PUBLISHED" : "DRAFT",
     showOnStore: product.publish === true,
@@ -356,7 +364,13 @@ function normalizeProduct(product) {
       ? product.images.map((image) => ({ ...image, url: resolveMediaUrl(image.url) }))
       : [],
     customFields: Array.isArray(product.customFields)
-      ? product.customFields.filter((field) => field && typeof field.name === "string" && typeof field.value === "string")
+      ? product.customFields
+          .filter((field) => field && typeof field.name === "string" && ["string", "number"].includes(typeof field.value))
+          .map((field) => ({
+            ...field,
+            type: ["text", "number", "image"].includes(field.type) ? field.type : "text",
+            value: field.type === "image" ? resolveMediaUrl(String(field.value)) : field.value,
+          }))
       : [],
     price: Number(product.price || 0),
     stock: Number(product.stock || 0),
