@@ -339,6 +339,10 @@ function normalizeProduct(
       product.size ||
       null,
 
+    customFields:
+      Array.isArray(product.customFields)
+        ? product.customFields.filter((field) => field && typeof field.name === "string" && typeof field.value === "string")
+        : [],
 
     /* -------------------------------
        STORE STATE

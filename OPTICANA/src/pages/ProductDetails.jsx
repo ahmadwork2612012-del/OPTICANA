@@ -1554,6 +1554,15 @@ ${product.name}
                 }
               />
 
+              {Array.isArray(product.customFields) && product.customFields
+                .filter((field) => String(field?.name || "").trim() && String(field?.value || "").trim())
+                .map((field, index) => (
+                  <SpecRow
+                    key={`custom-field-${index}-${String(field.name).trim()}`}
+                    label={String(field.name).trim()}
+                    value={String(field.value).trim()}
+                  />
+                ))}
 
               <SpecRow
                 label="التوفر"
