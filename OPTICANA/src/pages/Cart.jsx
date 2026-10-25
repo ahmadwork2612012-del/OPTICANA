@@ -102,6 +102,13 @@ function Cart() {
     setCheckoutLoading,
   ] = useState(false);
 
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [checkoutCustomer, setCheckoutCustomer] = useState({
+    name: "",
+    phone: "",
+    whatsapp: "",
+  });
+
 
   /* =====================================
      LOAD CURRENT ADMIN DATA
@@ -546,41 +553,57 @@ Product total: ${itemTotal} ${displayCurrency}`;
      CHECKOUT
   ===================================== */
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (event) => {
+    event.preventDefault();
     if (!canCheckout || checkoutLoading) return;
 
-    const customerName = window.prompt(t("اكتب اسمك لإتمام الطلب:"));
-    if (!customerName?.trim()) return;
+    const name = checkoutCustomer.name.trim();
+    const phone = checkoutCustomer.phone.trim();
+    const whatsapp = checkoutCustomer.whatsapp.trim();
+    const validPhone = (value) => value.replace(/\D/g, "").length >= 6;
 
-    const phone = window.prompt(t("اكتب رقم الهاتف للتواصل:"));
-    if (!phone?.trim()) return;
+    if (!name) return toast.error(t("اكتب اسمك لإتمام الطلب."));
+    if (!validPhone(phone)) return toast.error(t("أدخل رقم هاتف صحيحًا."));
+    if (!validPhone(whatsapp)) return toast.error(t("أدخل رقم واتساب صحيحًا."));
+
+    // Open a blank tab from the user's submit action to avoid popup blockers
+    // after the asynchronous order-creation request.
+    const whatsappTab = window.open("about:blank", "_blank");
 
     try {
       setCheckoutLoading(true);
 
       const order = await createStoreOrder({
         customer: {
-          name: customerName.trim(),
-          phone: phone.trim(),
-          whatsapp: phone.trim(),
+          name,
+          phone,
+          whatsapp,
         },
         items: availableItems,
       });
 
       const orderNumber = order?.orderNumber || order?.id || "";
-      const message = `${decodeURIComponent(whatsappMessage)}
+      const customerDetails = isEnglish
+        ? `Customer: ${name}\nPhone: ${phone}\nWhatsApp: ${whatsapp}\n\n`
+        : `اسم العميل: ${name}\nرقم الهاتف: ${phone}\nرقم واتساب: ${whatsapp}\n\n`;
+      const message = `${customerDetails}${decodeURIComponent(whatsappMessage)}
 
 ${isEnglish ? `Order number: ${orderNumber}` : `رقم الطلب: ${orderNumber}`}
 `;
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-      window.open(
-        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
+      if (whatsappTab && !whatsappTab.closed) {
+        whatsappTab.opener = null;
+        whatsappTab.location.href = whatsappUrl;
+      } else {
+        window.location.href = whatsappUrl;
+      }
 
+      setShowCheckoutForm(false);
+      setCheckoutCustomer({ name: "", phone: "", whatsapp: "" });
       toast.success(t(`تم إنشاء الطلب ${orderNumber}`));
     } catch (error) {
+      if (whatsappTab && !whatsappTab.closed) whatsappTab.close();
       toast.error(t(error?.message || "تعذر إنشاء الطلب، حاول مرة أخرى"));
     } finally {
       setCheckoutLoading(false);
@@ -1332,7 +1355,7 @@ ${isEnglish ? `Order number: ${orderNumber}` : `رقم الطلب: ${orderNumber
             {canCheckout ? (
               <button
                 type="button"
-                onClick={handleCheckout}
+                onClick={() => setShowCheckoutForm(true)}
                 disabled={checkoutLoading}
                 className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] px-5 py-4 text-sm font-black text-white transition hover:bg-[#9ead97] disabled:cursor-wait disabled:opacity-60"
               >
@@ -1367,6 +1390,104 @@ ${isEnglish ? `Order number: ${orderNumber}` : `رقم الطلب: ${orderNumber
                   : "سيتم إرسال تفاصيل الطلب إلى واتساب لتأكيد التوفر والطلب."}
 
             </p>
+
+            {showCheckoutForm && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/45 p-4" role="presentation">
+                <form
+                  onSubmit={handleCheckout}
+                  className="my-auto w-full max-w-lg rounded-[28px] border border-[#dfe6dc] bg-white p-6 shadow-2xl sm:p-8"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="checkout-form-title"
+                >
+                  <div className="mb-6 flex items-start justify-between gap-4">
+                    <div>
+                      <h2 id="checkout-form-title" className="text-xl font-black text-[#273025]">
+                        {isEnglish ? "Contact details" : "بيانات التواصل"}
+                      </h2>
+                      <p className="mt-2 text-sm leading-6 text-[#758073]">
+                        {isEnglish ? "Enter the details that will accompany your order." : "اكتب بياناتك حتى تصل مع الطلب إلى إدارة المتجر عبر واتساب."}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowCheckoutForm(false)}
+                      disabled={checkoutLoading}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#dfe6dc] text-[#657361] disabled:opacity-50"
+                      aria-label={isEnglish ? "Close form" : "إغلاق النموذج"}
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="block text-sm font-bold text-[#44503f]">
+                      {isEnglish ? "Full name" : "الاسم الكامل"}
+                      <input
+                        autoComplete="name"
+                        value={checkoutCustomer.name}
+                        onChange={(event) => setCheckoutCustomer((current) => ({ ...current, name: event.target.value }))}
+                        maxLength={120}
+                        required
+                        className="mt-2 w-full rounded-xl border border-[#dfe6dc] bg-[#fbfcfa] px-4 py-3 text-sm outline-none transition focus:border-[#9ead97]"
+                        placeholder={isEnglish ? "Your name" : "اكتب اسمك"}
+                      />
+                    </label>
+
+                    <label className="block text-sm font-bold text-[#44503f]">
+                      {isEnglish ? "Phone number" : "رقم الهاتف"}
+                      <input
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        value={checkoutCustomer.phone}
+                        onChange={(event) => setCheckoutCustomer((current) => ({ ...current, phone: event.target.value }))}
+                        minLength={6}
+                        maxLength={30}
+                        required
+                        className="mt-2 w-full rounded-xl border border-[#dfe6dc] bg-[#fbfcfa] px-4 py-3 text-sm outline-none transition focus:border-[#9ead97]"
+                        placeholder={isEnglish ? "+20..." : "مثال: 01xxxxxxxxx"}
+                      />
+                    </label>
+
+                    <label className="block text-sm font-bold text-[#44503f]">
+                      {isEnglish ? "WhatsApp number" : "رقم واتساب"}
+                      <input
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        value={checkoutCustomer.whatsapp}
+                        onChange={(event) => setCheckoutCustomer((current) => ({ ...current, whatsapp: event.target.value }))}
+                        minLength={6}
+                        maxLength={30}
+                        required
+                        className="mt-2 w-full rounded-xl border border-[#dfe6dc] bg-[#fbfcfa] px-4 py-3 text-sm outline-none transition focus:border-[#9ead97]"
+                        placeholder={isEnglish ? "WhatsApp number with country code" : "رقم واتساب مع مفتاح الدولة"}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowCheckoutForm(false)}
+                      disabled={checkoutLoading}
+                      className="h-12 rounded-xl border border-[#dfe6dc] px-5 text-sm font-black text-[#657361] disabled:opacity-50"
+                    >
+                      {isEnglish ? "Cancel" : "إلغاء"}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={checkoutLoading}
+                      className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#B4C4AD] px-6 text-sm font-black text-white transition hover:bg-[#9ead97] disabled:cursor-wait disabled:opacity-60"
+                    >
+                      <MessageCircle size={18} />
+                      {checkoutLoading ? (isEnglish ? "Creating order..." : "جاري إنشاء الطلب...") : (isEnglish ? "Confirm and continue" : "تأكيد وإرسال الطلب")}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
 
           </Card>
 
