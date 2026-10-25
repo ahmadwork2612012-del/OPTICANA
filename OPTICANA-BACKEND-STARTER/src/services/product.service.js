@@ -106,6 +106,9 @@ function serializeStoreProduct(product) {
     size:
       product.size || null,
 
+    customFields:
+      Array.isArray(product.customFields) ? product.customFields : [],
+
     image:
       primaryImage,
 
@@ -177,6 +180,7 @@ const storeProductSelect = {
   color: true,
   material: true,
   size: true,
+  customFields: true,
   rating: true,
   ratingCount: true,
   status: true,
@@ -296,6 +300,7 @@ const adminProductSelect = {
   color: true,
   material: true,
   size: true,
+  customFields: true,
   rating: true,
   ratingCount: true,
   status: true,
@@ -412,6 +417,9 @@ function serializeAdminProduct(
 
     size:
       product.size || null,
+
+    customFields:
+      Array.isArray(product.customFields) ? product.customFields : [],
 
     status:
       product.status,

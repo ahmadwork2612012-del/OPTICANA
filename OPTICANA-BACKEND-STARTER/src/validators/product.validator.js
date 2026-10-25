@@ -48,6 +48,12 @@ export const createProductSchema = z.object({
   size:
     z.string().optional(),
 
+  customFields:
+    z.array(z.object({
+      name: z.string().trim().min(1).max(80),
+      value: z.string().trim().min(1).max(500),
+    })).max(50).default([]),
+
   status:
     z.enum([
       "DRAFT",
@@ -128,6 +134,12 @@ export const updateProductSchema =
 
     size:
       z.string().optional(),
+
+    customFields:
+      z.array(z.object({
+        name: z.string().trim().min(1).max(80),
+        value: z.string().trim().min(1).max(500),
+      })).max(50).optional(),
 
     status:
       z.enum([
