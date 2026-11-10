@@ -2,11 +2,11 @@ const SITE_ORIGIN = "https://www.opticanaa.com";
 const API_ORIGIN = (
   process.env.OPTICANA_PUBLIC_API_ORIGIN ||
   "https://opticana-backend-ahmad-8996dd44.vercel.app"
-).replace(/\\/$/, "");
+).replace(/\/+$/, "");
 const MEDIA_ORIGIN = (
   process.env.OPTICANA_MEDIA_ORIGIN ||
   "https://media.opticanaa.com"
-).replace(/\\/$/, "");
+).replace(/\/+$/, "");
 
 function unwrap(payload) {
   return payload?.data ?? payload ?? {};
@@ -33,21 +33,21 @@ function xml(value) {
 
 function plainText(value) {
   return String(value ?? "")
-    .replace(/<script[\\s\\S]*?<\\/script>/gi, " ")
-    .replace(/<style[\\s\\S]*?<\\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]*>/g, " ")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
 function currencyCode(raw) {
   const value = String(raw ?? "").trim().toUpperCase();
-  if (!value || /EGP|ج\\s*\\.?م|جنيه/.test(value)) return "EGP";
-  if (/SAR|ر\\s*\\.?س|ريال سعودي/.test(value)) return "SAR";
-  if (/AED|د\\s*\\.?إ|درهم/.test(value)) return "AED";
-  if (/USD|دولار|\\$/.test(value)) return "USD";
+  if (!value || /EGP|ج\s*\.?م|جنيه/.test(value)) return "EGP";
+  if (/SAR|ر\s*\.?س|ريال سعودي/.test(value)) return "SAR";
+  if (/AED|د\s*\.?إ|درهم/.test(value)) return "AED";
+  if (/USD|دولار|\$/.test(value)) return "USD";
   if (/KWD|دينار كويتي/.test(value)) return "KWD";
   if (/QAR|ريال قطري/.test(value)) return "QAR";
   if (/BHD|دينار بحريني/.test(value)) return "BHD";
@@ -63,9 +63,9 @@ function imageUrl(candidate) {
   if (!raw || typeof raw !== "string") return "";
 
   try {
-    if (/^https?:\\/\\//i.test(raw)) return new URL(raw).href;
-    if (raw.startsWith("//")) return `https:${raw}`;
-    if (raw.startsWith("/uploads/")) return `${MEDIA_ORIGIN}${raw}`;
+    if (/^https?:\/\//i.test(raw)) return new URL(raw).href;
+    if (raw.startsWith("//")) return "https:" + raw;
+    if (raw.startsWith("/uploads/")) return MEDIA_ORIGIN + raw;
     if (raw.startsWith("/")) return new URL(raw, SITE_ORIGIN).href;
     return new URL(raw, SITE_ORIGIN).href;
   } catch {
@@ -86,16 +86,18 @@ function pickImage(product) {
 }
 
 async function fetchJson(path) {
-  const response = await fetch(`${API_ORIGIN}/api${path}`, {
+  const response = await fetch(API_ORIGIN + "/api" + path, {
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(8000),
   });
-  if (!response.ok) throw new Error(`Public API returned ${response.status} for ${path}`);
+  if (!response.ok) {
+    throw new Error("Public API returned " + response.status + " for " + path);
+  }
   return response.json();
 }
 
 function formatPrice(value, code) {
-  return `${Number(value).toFixed(2)} ${code}`;
+  return Number(value).toFixed(2) + " " + code;
 }
 
 export default async function handler(request, response) {
@@ -138,34 +140,46 @@ export default async function handler(request, response) {
       const image = pickImage(product);
       const title = plainText(product.name).slice(0, 150);
       const description = plainText(product.description || product.name).slice(0, 5000);
-      const itemUrl = `${SITE_ORIGIN}/product/${encodeURIComponent(String(product.id))}`;
+      const itemUrl = SITE_ORIGIN + "/product/" + encodeURIComponent(String(product.id));
       const condition = ["new", "used", "refurbished"].includes(
         String(product.condition || "").toLowerCase()
       )
         ? String(product.condition).toLowerCase()
         : "new";
 
-      return `    <item>
-      <g:id>${xml(product.id)}</g:id>
-      <g:title>${xml(title)}</g:title>
-      <g:description>${xml(description)}</g:description>
-      <g:link>${xml(itemUrl)}</g:link>
-      <g:image_link>${xml(image)}</g:image_link>
-      <g:availability>in_stock</g:availability>
-      <g:price>${formatPrice(regularPrice, currency)}</g:price>
-${hasSale ? `      <g:sale_price>${formatPrice(currentPrice, currency)}</g:sale_price>\\n` : ""}      <g:condition>${condition}</g:condition>
-${product.category ? `      <g:product_type>${xml(plainText(product.category))}</g:product_type>\\n` : ""}${product.brand ? `      <g:brand>${xml(product.brand)}</g:brand>\\n` : ""}    </item>`;
+      const lines = [
+        "    <item>",
+        "      <g:id>" + xml(product.id) + "</g:id>",
+        "      <g:title>" + xml(title) + "</g:title>",
+        "      <g:description>" + xml(description) + "</g:description>",
+        "      <g:link>" + xml(itemUrl) + "</g:link>",
+        "      <g:image_link>" + xml(image) + "</g:image_link>",
+        "      <g:availability>in_stock</g:availability>",
+        "      <g:price>" + formatPrice(regularPrice, currency) + "</g:price>",
+      ];
+      if (hasSale) {
+        lines.push("      <g:sale_price>" + formatPrice(currentPrice, currency) + "</g:sale_price>");
+      }
+      lines.push("      <g:condition>" + condition + "</g:condition>");
+      if (product.category) {
+        lines.push("      <g:product_type>" + xml(plainText(product.category)) + "</g:product_type>");
+      }
+      if (product.brand) lines.push("      <g:brand>" + xml(product.brand) + "</g:brand>");
+      lines.push("    </item>");
+      return lines.join("\n");
     });
 
-    const rss = `<?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
-  <channel>
-    <title>OPTICANA</title>
-    <link>${SITE_ORIGIN}</link>
-    <description>Public product feed for OPTICANA.</description>
-${items.join("\\n")}
-  </channel>
-</rss>`;
+    const rss = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">',
+      "  <channel>",
+      "    <title>OPTICANA</title>",
+      "    <link>" + SITE_ORIGIN + "</link>",
+      "    <description>Public product feed for OPTICANA.</description>",
+      items.join("\n"),
+      "  </channel>",
+      "</rss>",
+    ].join("\n");
 
     response.setHeader("Content-Type", "application/xml; charset=utf-8");
     response.setHeader("Cache-Control", "public, s-maxage=1800, stale-while-revalidate=3600");
