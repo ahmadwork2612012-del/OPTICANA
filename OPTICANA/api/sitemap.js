@@ -2,7 +2,7 @@ const SITE_ORIGIN = "https://www.opticanaa.com";
 const API_ORIGIN = (
   process.env.OPTICANA_PUBLIC_API_ORIGIN ||
   "https://opticana-backend-ahmad-8996dd44.vercel.app"
-).replace(/\\/$/, "");
+).replace(/\/+$/, "");
 
 const STATIC_PATHS = ["/", "/products", "/offers", "/about", "/contact"];
 
@@ -34,13 +34,13 @@ function validDate(value) {
 }
 
 async function getPublishedProducts() {
-  const response = await fetch(`${API_ORIGIN}/api/products`, {
+  const response = await fetch(API_ORIGIN + "/api/products", {
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(8000),
   });
 
   if (!response.ok) {
-    throw new Error(`Product API returned ${response.status}`);
+    throw new Error("Product API returned " + response.status);
   }
 
   const payload = await response.json();
@@ -67,12 +67,12 @@ export default async function handler(request, response) {
   }
 
   const entries = STATIC_PATHS.map((path) => ({
-    loc: `${SITE_ORIGIN}${path}`,
+    loc: SITE_ORIGIN + path,
     priority: path === "/" ? "1.0" : path === "/products" ? "0.9" : "0.6",
   }));
 
   for (const product of products) {
-    const loc = `${SITE_ORIGIN}/product/${encodeURIComponent(String(product.id))}`;
+    const loc = SITE_ORIGIN + "/product/" + encodeURIComponent(String(product.id));
     entries.push({
       loc,
       lastmod: validDate(product.updatedAt || product.createdAt),
@@ -84,13 +84,23 @@ export default async function handler(request, response) {
     new Map(entries.map((entry) => [entry.loc, entry])).values()
   );
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${uniqueEntries.map((entry) => `  <url>
-    <loc>${escapeXml(entry.loc)}</loc>
-${entry.lastmod ? `    <lastmod>${entry.lastmod}</lastmod>\\n` : ""}    <priority>${entry.priority}</priority>
-  </url>`).join("\\n")}
-</urlset>`;
+  const urlBlocks = uniqueEntries.map((entry) => {
+    const lines = [
+      "  <url>",
+      "    <loc>" + escapeXml(entry.loc) + "</loc>",
+    ];
+    if (entry.lastmod) lines.push("    <lastmod>" + entry.lastmod + "</lastmod>");
+    lines.push("    <priority>" + entry.priority + "</priority>");
+    lines.push("  </url>");
+    return lines.join("\n");
+  });
+
+  const xml = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    urlBlocks.join("\n"),
+    "</urlset>",
+  ].join("\n");
 
   response.setHeader("Content-Type", "application/xml; charset=utf-8");
   response.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
