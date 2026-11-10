@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Private and utility pages are not search landing pages.
+Disallow: /manage
+Disallow: /cart
+Disallow: /favorites
+
+Sitemap: https://www.opticanaa.com/api/sitemap
