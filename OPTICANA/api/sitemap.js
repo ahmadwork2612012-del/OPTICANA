@@ -14,6 +14,8 @@ const STATIC_PATHS = [
   "/contact",
   "/guides/choose-sunglasses.html",
   "/guides/choose-optical-frames.html",
+  "/locations/opticana-imbaba.html",
+  "/locations/opticana-nasr-city.html",
 ];
 
 function unwrapArray(payload) {
