@@ -4,7 +4,15 @@ const API_ORIGIN = (
   "https://opticana-backend-ahmad-8996dd44.vercel.app"
 ).replace(/\/+$/, "");
 
-const STATIC_PATHS = ["/", "/products", "/offers", "/about", "/contact"];
+const STATIC_PATHS = [
+  "/",
+  "/products",
+  "/offers",
+  "/about",
+  "/contact",
+  "/guides/choose-sunglasses.html",
+  "/guides/choose-optical-frames.html",
+];
 
 function unwrapArray(payload) {
   const data = payload?.data ?? payload;
@@ -68,7 +76,13 @@ export default async function handler(request, response) {
 
   const entries = STATIC_PATHS.map((path) => ({
     loc: SITE_ORIGIN + path,
-    priority: path === "/" ? "1.0" : path === "/products" ? "0.9" : "0.6",
+    priority: path === "/"
+      ? "1.0"
+      : path === "/products"
+        ? "0.9"
+        : path.startsWith("/guides/")
+          ? "0.7"
+          : "0.6",
   }));
 
   for (const product of products) {
