@@ -116,21 +116,24 @@ export default async function handler(request, response) {
     const currency = currencyCode(
       settings?.general?.currency || settings?.business?.currency || "ج.م"
     );
+    const pricesArePublic = settings?.store?.showPrices !== false;
 
-    const products = unwrapArray(productsPayload).filter((product) => {
-      const price = Number(product?.price ?? product?.sellingPrice ?? 0);
-      return (
-        product &&
-        product.id != null &&
-        product.status === "PUBLISHED" &&
-        product.showOnStore !== false &&
-        Number(product.stock ?? 0) > 0 &&
-        Number.isFinite(price) &&
-        price > 0 &&
-        Boolean(String(product.name || "").trim()) &&
-        Boolean(pickImage(product))
-      );
-    });
+    const products = pricesArePublic
+      ? unwrapArray(productsPayload).filter((product) => {
+          const price = Number(product?.price ?? product?.sellingPrice ?? 0);
+          return (
+            product &&
+            product.id != null &&
+            product.status === "PUBLISHED" &&
+            product.showOnStore !== false &&
+            Number(product.stock ?? 0) > 0 &&
+            Number.isFinite(price) &&
+            price > 0 &&
+            Boolean(String(product.name || "").trim()) &&
+            Boolean(pickImage(product))
+          );
+        })
+      : [];
 
     const items = products.map((product) => {
       const currentPrice = Number(product.price ?? product.sellingPrice);
