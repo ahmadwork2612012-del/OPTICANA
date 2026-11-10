@@ -1,8 +1,10 @@
 const SITE_ORIGIN = "https://www.opticanaa.com";
-const API_ORIGIN = (
+const API_BASE = (
   process.env.OPTICANA_PUBLIC_API_ORIGIN ||
-  "https://opticana-backend-ahmad-8996dd44.vercel.app"
+  process.env.VITE_API_BASE_URL ||
+  "https://opticana-backend.vercel.app"
 ).replace(/\/+$/, "");
+const API_ORIGIN = API_BASE.replace(/\/api$/i, "");
 
 const STATIC_PATHS = [
   "/",
